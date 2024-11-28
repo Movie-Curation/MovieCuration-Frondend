@@ -1,0 +1,34 @@
+.recommendations {
+    margin-top: 40px;
+}
+
+.recommendation-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+}
+
+.recommendation-card {
+    width: 150px;
+    text-align: center;
+}
+
+.recommendation-card a {
+    text-decoration: none;
+}
+
+.recommendation-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.recommendation-title {
+    color: #333;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+}

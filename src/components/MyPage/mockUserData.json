@@ -1,0 +1,41 @@
+{
+    "nickname": "테스트 사용자",
+    "profilePicture": null,
+    "followers": 120,
+    "following": 80,
+    "totalLikes": 500,
+    "recentReview": "이 영화 정말 재미있었어요!",
+    "reviews": [
+        {
+            "movie_id": 912649,
+            "text": "이 영화 정말 지루해요"
+          },
+          {
+            "movie_id": 698687,
+            "text": "재미있어요!"
+          },
+          {
+            "movie_id": 1084736,
+            "text": "별로였어요"
+          },
+          {
+            "movie_id": 899082,
+            "text": "좋아요"
+          }
+
+    ],
+    "favorites" : [
+      {
+        "movie_id" : 899082
+      },
+      {
+        "movie_id" : 1184918
+      },
+      {
+        "movie_id" : 402431
+      },
+      {
+        "movie_id" : 111111
+      }
+    ]
+}

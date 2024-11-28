@@ -1,0 +1,12 @@
+/* src/App.css */
+.App {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 80px;
+}

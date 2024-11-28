@@ -1,0 +1,469 @@
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Recommendations from "../../components/Recommendations";
+import { FaStar, FaHeart, FaRegHeart, FaRegThumbsDown, FaRegThumbsUp } from "react-icons/fa";
+import { PiSiren } from "react-icons/pi";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import "./MovieDetail.css";
+import CommentsSection from "../Comments/CommentsSection";
+// import mockLoginData from "./mockLoginData";
+
+function MovieDetail() {
+    const { movie_id } = useParams();
+    const [movie, setMovie] = useState(null);
+    const [director, setDirector] = useState(null);
+    const [cast, setCast] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loggedInUser, setLoggedInUser] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [review, setReview] = useState("");
+    const [reviews, setReviews] = useState([
+            // 예시 초기 데이터
+        {
+            id: 1,
+            user: "User123",
+            content: "Great movie!",
+            rating: 8,
+            created_at: "2024-11-20T10:00:00",
+            likes: 101,
+            dislikes: 2,
+        },
+        {
+            id: 2,
+            user: "TEST",
+            content: "Boring",
+            rating: 3,
+            created_at: "2024-11-20T10:30:00",
+            likes: 5,
+            dislikes: 7,
+        },
+        {
+            id: 3,
+            user: "example",
+            content: "Wow!",
+            rating: 10,
+            created_at: "2024-11-20T12:30:00",
+            likes: 3,
+            dislikes: 1,
+        }
+    ]);
+    const [score, setScore] = useState([false, false, false, false, false, false, false, false, false, false]);
+
+    // 로그인 상태 확인
+    useEffect(() => {
+        const fetchLoggedInUser = async () => {
+            try {
+                const response =  await axios.get("/api/auth/check-login");
+                setIsLoggedIn(response.data.is_logged_in);
+                setLoggedInUser(response.data.user);
+                setIsAdmin(response.data.is_admin);
+            } catch (error) {
+                console.error("로그인 상태 확인 중 오류 발생:", error);
+                setIsLoggedIn(false);
+                setLoggedInUser(null);
+            }
+        };
+
+        fetchLoggedInUser();
+    }, []);
+
+    // 영화 정보 가져오기
+    useEffect(() => {
+        const fetchMovieDetail = async () => {
+            const api_key = process.env.REACT_APP_TMDB_API_KEY;
+            const movieUrl = `https://api.themoviedb.org/3/movie/${movie_id}?api_key=${api_key}&language=ko-KR`;
+            const castUrl = `https://api.themoviedb.org/3/movie/${movie_id}/credits?api_key=${api_key}&language=ko-KR`;
+            const recommendationsUrl = `https://api.themoviedb.org/3/movie/${movie_id}/recommendations?api_key=${api_key}&language=ko-KR`;
+
+            try {
+                const [movieResponse, castResponse, recommendationsResponse] = await Promise.all([
+                    fetch(movieUrl),
+                    fetch(castUrl),
+                    fetch(recommendationsUrl)
+                ]);
+                const movieData = await movieResponse.json();
+                const castData = await castResponse.json();
+                const recommendationsData = await recommendationsResponse.json();
+
+                setMovie(movieData);
+                setCast(castData.cast.slice(0, 5));
+
+                const directorData = castData.crew.find(({job}) => job === 'Director');
+                setDirector(directorData ? directorData.name : "감독 정보 없음");
+
+                setRecommendations(recommendationsData.results);
+
+            } catch (error) {
+                console.error("영화 정보를 가져오는 데 실패했습니다: ", error);
+            }
+        };
+
+        const fetchReviews = async () => {
+            try {
+                const response = await axios.get(`/api/movies/${movie_id}/reviews`); // 백엔드에서 리뷰를 가져오는 API 경로
+                setReviews(response.data); // 리뷰 데이터를 상태에 저장
+            } catch (error) {
+                console.error("리뷰를 가져오는 데 실패했습니다: ", error);
+            }
+        };
+
+        fetchMovieDetail();
+        fetchReviews();
+    }, [movie_id]);
+
+    // 실제 리뷰 작성 데이터
+    const handleReviewSubmit = async () => {
+        if (!review.trim() || score.filter(Boolean).length === 0) return; // 리뷰와 별점이 모두 입력되어야 제출
+
+        try {
+            const response = await axios.post("api/reviews", {
+                movie_id,
+                review,
+                rating: score.filter(Boolean).length,
+                created_at: new Date().toLocaleString()
+            });
+            setReviews((prev) => [...prev, response.data]);
+            setReview("");
+            setScore([false, false, false, false, false, false, false, false, false, false]);
+        } catch (error) {
+            console.error("리뷰를 제출하는 데 실패했습니다: ", error);
+        }
+    };
+
+    // 별점 기능
+    const starScore = (index) => {
+        let updatedScore = [...score];
+        for (let i = 0; i < 10; i++) {
+            updatedScore[i] = i <= index;
+        }
+        setScore(updatedScore);
+    };
+
+    // 영화 좋아요 이벤트 핸들러
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    const handleFavoriteClick = async () => {
+        if (!movie || !movie.id) {
+            console.error("영화 데이터가 유효하지 않습니다.");
+            return;
+        }
+        if (!isLoggedIn) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+    
+        try {
+            const response = await axios.post("/api/favorite", { movie_id: movie.id });
+            if (response.status === 200) {
+                setIsFavorite((prev) => !prev); // 상태 반전
+            } else {
+                console.error("좋아요 응답 에러:", response.status);
+            }
+        } catch (error) {
+            console.error("좋아요 요청 중 오류:", error);
+        }
+    };
+
+    // 리뷰 좋아요/싫어요 이벤트 핸들러
+    const handleLike = async(review_id) => {
+        try {
+            // 백엔드에 좋아요 클릭 이벤트 전송
+            await axios.post(`/api/revies/${review_id}/like`, { username: loggedInUser.username });
+
+            // 백엔드에서 해당 리뷰의 최신 좋아요 수 받아오기
+            const response = await axios.get(`/api/review/${review_id}`);
+            const updatedReview = response.data;
+
+            setReviews((prev) =>
+                prev.map((review) => 
+                    review.id === review_id
+                        ? { ...review, likes: updatedReview.likes }
+                        : review
+                    )
+                );
+            } catch (error) {
+                console.error("Error liking review: ", error);
+            }
+        };
+        
+    const handleDislike = async (review_id) => {
+        try {
+            // 백엔드에 싫어요 클릭 이벤트 전송
+            await axios.post(`/api/reviews/${review_id}/dislike`, { username: loggedInUser.username });
+
+            // 백엔드에서 해당 리뷰의 최신 싫어요 수 받아오기
+            const response = await axios.get(`/api/review/${review_id}`);
+            const updatedReview = response.data;
+
+            setReviews((prev) =>
+                prev.map((review) =>
+                    review.id === review_id
+                        ? { ...review, dislikes: updatedReview.dislikes }
+                        : review
+                    )
+                );
+            } catch (error) {
+                console.error("Error disliking review: ", error);
+            }
+        };
+    
+    // 불량 리뷰 신고
+    const handleReport = async (review_id) => {
+        if (!isLoggedIn) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        const confirmReport = window.confirm("이 리뷰를 신고하시겠습니까?")
+        if (!confirmReport) return;
+
+        try {
+            const response = await axios.post(`/api/reviews/${review_id}/report`, { username: loggedInUser.username }); // 백엔드에 리뷰 신고 전송
+
+            if (response.status === 200) {
+                alert("리뷰 신고가 접수되었습니다.");
+            } else {
+                alert("신고 처리에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("신고 요청 오류: ", error);
+            alert("신고 요청에 실패했습니다.")
+        }
+    };
+
+    // 리뷰 편집 모드
+    const [editMode, setEditMode] = useState(null);
+    const [editContent, setEditContent] = useState("");
+    const [editRating, setEditRating] = useState(0);
+
+    // 리뷰 수정 및 삭제 핸들러
+    const handleEditStart = (review) => {
+        setEditMode(review.id);
+        setEditContent(review.content);
+        setEditRating(review.rating);
+    };
+    
+    const handleEditSubmit = async (review_id) => {
+        try {
+            await axios.patch(`/api/reviews/${review_id}`, {
+                content: editContent,
+                rating: editRating,
+            });
+    
+            setReviews((prev) =>
+                prev.map((review) =>
+                    review.id === review_id
+                        ? { ...review, content: editContent, rating: editRating }
+                        : review
+                )
+            );
+            setEditMode(null);
+            setEditContent("");
+            setEditRating(0);
+        } catch (error) {
+            console.error("Error editing review: ", error);
+        }
+    };
+    
+    const handleDelete = async (review_id) => {
+        try {
+            await axios.delete(`/api/reviews/${review_id}`);
+            setReviews((prev) => prev.filter((review) => review.id !== review_id));
+        } catch (error) {
+            console.error("Error deleting review: ", error);
+        }
+    };
+
+    // 리뷰 정렬
+    const [sortOrder, setSortOrder] = useState("recent"); // 기본 정렬은 최신순
+
+    const sortedReviews = [...reviews].sort((a, b) => {
+        if (sortOrder === "expert") {
+            if (b.likes > 100 && a.likes <= 100) return 1;
+            if (a.likes > 100 && b.likes <= 100) return -1;
+            return new Date(b.created_at) -  new Date(a.created_at);
+        } else if (sortOrder === "likes") {
+            return b.likes - a.likes;
+        } else if (sortOrder === "rating") {
+            return b.rating - a.rating;
+        } else if (sortOrder === "recent") {
+            return new Date(b.created_at) - new Date(a.created_at);
+        }
+        return 0;
+    });
+
+    if (!movie) return <div>Loading...</div>;
+
+    return (
+        <div className="movie-detail">
+            <h1>{movie.title}</h1>
+            <div className="poster">
+                <img
+                    src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+                    alt={movie.title}
+                />
+            </div>
+
+            {movie && (
+                <div className="button-container">
+                    <button
+                        className={`favorite-button ${isFavorite ? "favorited" : ""}`}
+                        onClick={handleFavoriteClick}
+                    >
+                        {isFavorite ? <FaHeart color="#007BFF"/> : <FaRegHeart />}
+                        {isFavorite ? " 좋아요 취소" : " 좋아요"}
+                    </button>
+                </div>
+            )}
+
+            <div className="info-section">
+                <h3>감독</h3>
+                <p>{director}</p>
+
+                <h3>주연 배우</h3>
+                <div className="cast">
+                    {cast.map((actor) => (
+                        <div key={actor.id} className="actor">
+                            {actor.name}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="overview">
+                <h3>줄거리</h3>
+                <p>{movie.overview}</p>
+            </div>
+
+            <div className="vote-average">
+                <h3>평균 별점</h3>
+                <p>⭐: {movie.vote_average ? movie.vote_average.toFixed(2) : 'N/A'}</p>
+            </div>
+
+            {isLoggedIn && (
+                <div className="review-section">
+                    <h3>리뷰 작성</h3>
+                    {/* 별점 선택 UI */}
+                    <div className="star-rating">
+                        {score.map((isFilled, index) => (
+                            <FaStar
+                                key={index}
+                                size="24"
+                                color={isFilled ? "#FFD700" : "#d3d3d3"}
+                                onClick={() => starScore(index)} // 별 클릭 시 호출
+                            />
+                        ))}
+                    </div>
+                    <textarea
+                        value={review}
+                        onChange={(e) => setReview(e.target.value)}
+                        placeholder="리뷰를 작성하세요..."
+                    />
+                    <button onClick={handleReviewSubmit}>제출</button>
+                </div>
+            )}
+            {/* 리뷰 목록 및 정렬 버튼 */}
+            {reviews.length > 0 && (
+                <div className="reviews-list">
+                <h3>리뷰 목록</h3>
+                <div className="sort-options">
+                    <button
+                        className={sortOrder === "recent" ? "active" : ""}
+                        onClick={() => setSortOrder("recent")}>
+                        최신순
+                    </button>
+                    <button
+                        className={sortOrder === "rating" ? "active" : ""}
+                        onClick={() => setSortOrder("rating")}>
+                        별점이 높은 리뷰
+                    </button>
+                    <button
+                        className={sortOrder === "likes" ? "active" : ""}
+                        onClick={() => setSortOrder("likes")}>
+                        좋아요 많은 리뷰
+                    </button>
+                    <button
+                        className={sortOrder === "expert" ? "active" : ""}
+                        onClick={() => setSortOrder("expert")}>
+                        전문가 리뷰
+                    </button>
+                </div>
+
+                {/* 정렬된 리뷰 섹션 */}
+                {sortedReviews.map((review) => (
+                    <div key={review.id} className="review-item">
+                        {editMode === review.id ? (
+                            <div>
+                                <div className="star-rating">
+                                    {[...Array(10)].map((_, index) => (
+                                        <FaStar
+                                            key={index}
+                                            size="24"
+                                            color={index < editRating ? "#FFD700" : "#d3d3d3"}
+                                            onClick={() => setEditRating(index + 1)}
+                                        />
+                                    ))}
+                                </div>
+                                <textarea
+                                    className={editMode === review.id ? "edit-textarea" : ""}
+                                    value={editContent}
+                                    onChange={(e) => setEditContent(e.target.value)}
+                                />
+                                <div className="edit-buttons">
+                                    <button className="review-button" onClick={() => handleEditSubmit(review.id)}>저장</button>
+                                    <button className="review-button cancel-button" onClick={() => setEditMode(null)}>취소</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <p><strong>
+                                    <Link to={`/profile/${review.user_id}`} className="review-user-link">
+                                    {review.user}
+                                    {review.likes > 100 && " 🏆"}
+                                    </Link>
+                                    </strong> ({new Date(review.created_at).toLocaleString()}):</p>
+                                <p>{review.content}</p>
+                                <p>⭐: {review.rating.toFixed(1)}</p>
+                                <div className="review-actions">
+                                    {isLoggedIn ? (
+                                        <>
+                                            <button onClick={() => handleLike(review.id)}><FaRegThumbsUp />{review.likes}</button>
+                                            <button onClick={() => handleDislike(review.id)}><FaRegThumbsDown />{review.dislikes}</button>
+                                        </>
+                                    ) : (
+                                        <>
+                                        <button onClick={() => alert("로그인이 필요합니다")}><FaRegThumbsUp />{review.likes}</button>
+                                        <button onClick={() => alert("로그인이 필요합니다")}><FaRegThumbsDown />{review.dislikes}</button>
+                                        </>
+                                    )}
+                                    <button onClick={() => handleReport(review.id)}>
+                                        <PiSiren size={20} />
+                                    </button>
+                                    {(isAdmin || (loggedInUser && review.user === loggedInUser.username)) && (  // 운영자의 리뷰 삭제 기능
+                                        <>
+                                            {review.user === loggedInUser.username && (  // 리뷰 작성자만 리뷰 수정/삭제하는 기능
+                                                <button onClick={() => handleEditStart(review)}>수정</button>
+                                            )}
+                                            <button onClick={() => handleDelete(review.id)}>삭제</button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                        {/* 댓글 컴포넌트 */}
+                        <CommentsSection review_id={review.id} isLoggedIn={isLoggedIn} />
+                    </div>
+                ))}
+            </div>
+            )}
+            {/* 추천 영화 섹션 */}
+            {recommendations.length > 0 && (
+                <Recommendations recommendations={recommendations} />
+            )}
+        </div>
+    );
+}
+
+export default MovieDetail;

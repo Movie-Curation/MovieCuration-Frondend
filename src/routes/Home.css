@@ -1,0 +1,16 @@
+.Home {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .main-content {
+    display: flex;
+    flex-direction: column; /* 세로 방향으로 배치 */
+    gap: 20px; /* 컴포넌트 간의 간격 설정 */
+    width: 100%;
+    justify-content: center;
+    align-self: center;
+  }

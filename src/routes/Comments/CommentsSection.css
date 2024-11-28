@@ -1,0 +1,45 @@
+/* 댓글 작성란 스타일 */
+.comments-section textarea {
+    width: 90%;
+    height: 20px;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-bottom: 2px solid #ccc;  /* 밑줄 스타일 */
+    outline: none;
+    background-color: transparent;
+    resize: none;
+}
+
+.comments-section textarea:focus {
+    border-bottom: 2px solid #000; /* 포커스 시 밑줄 색상 변경 */
+}
+
+/* 댓글 작성란의 버튼 스타일 */
+.comments-section button {
+    margin-top: 10px;
+    padding: 8px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.comments-section button:hover {
+    background-color: #0056b3;
+}
+
+.comment-actions button {
+    margin-right: 5px;
+}
+
+.comment-item {
+    margin-bottom: 8px;
+    padding: 5px 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+.edit-buttons button {
+    margin-top: 10px;
+}

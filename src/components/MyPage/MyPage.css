@@ -1,0 +1,198 @@
+.mypage-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    padding-top: 200px;
+}
+
+/* 프로필 섹션 */
+.profile-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #666;
+    margin-right: 1.5rem;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.nickname {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.email {
+    font-size: 1rem;
+    color: #666;
+    margin: 0;
+}
+
+/* 회원정보 수정 버튼 */
+.profile-update {
+    cursor: pointer;
+}
+
+/* 팔로우/팔로잉/좋아요 섹션 */
+.stats-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.stat {
+    text-align: center;
+    flex: 1;
+    padding: 0.5rem;
+    text-decoration: none;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #666;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+/* 내가 최근 쓴 리뷰 섹션 */
+.recent-review-section {
+    margin-bottom: 2rem;
+}
+
+.recent-review {
+    background-color: white;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 50px;
+}
+
+/* 좋아한 영화 리스트 섹션 */
+.favorite-movies-sections {
+    margin-bottom: 2rem;
+}
+
+.favorite-movies-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.favorite-movie-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 8px;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    max-width: 150px;
+}
+
+/* 더 보기 버튼 */
+
+.show-more-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.show-more-button:hover {
+    background-color: #0056b3;
+}
+
+/* 리뷰 리스트 섹션 */
+.review-list-section {
+    margin-bottom: 2rem;
+}
+
+.review-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.review-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 8px;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    max-width: 150px;
+}
+
+.review-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.review-card .poster img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+/* 리뷰 내용 */
+.review-card .review-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6); /* 반투명 배경 */
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    display: none; /* 기본적으로 숨김 */
+    border-radius: 0 0 4px 4px;
+}
+
+/* 포스터 위에 커서 호버 시 리뷰 내용 보이기 */
+.review-card:hover .review-text {
+    display: block; /* 호버 시 표시 */
+}
+
+/* 영화 제목 스타일 */
+.review-card .title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 8px;
+    color: #333;
+}
+
+.review-card:hover .title {
+    color: #007bff;
+}

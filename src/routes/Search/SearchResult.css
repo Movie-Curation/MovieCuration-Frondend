@@ -1,0 +1,38 @@
+.search-results {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 100px;
+    margin-left: 30px;
+}
+
+.result-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.result-card {
+    width: 150px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    text-align: center;
+    text-decoration: none;
+}
+
+.poster img {
+    width: 100%;
+    height: auto;
+}
+
+.title {
+    color: #333;
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+.score {
+    color: #333;
+    margin-top: 4px;
+}

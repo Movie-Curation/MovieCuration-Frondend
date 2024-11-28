@@ -1,0 +1,17 @@
+.movie-poster {
+    display: flex;
+    width: 150px;
+    text-align: center;
+  }
+  
+  .poster-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .poster-title {
+    font-size: 0.9em;
+    color: #333;
+  }
