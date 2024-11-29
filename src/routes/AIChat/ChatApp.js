@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
 import "./ChatApp.css";
 
-function ChatApp() {
+function ChatApp({ isLoggedIn }) {
+  // const navigate = useNavigate();
   const [messages, setMessages] = useState([]); // 현재 대화 저장
   const [input, setInput] = useState(""); // 입력 필드 값
   const [conversations, setConversations] = useState([]); // 모든 대화 저장
@@ -32,6 +34,18 @@ function ChatApp() {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // 로그인 여부 확인 후 로그인 하지 않았으면 로그인 페이지로 리디렉션
+  // useEffect(() => {
+  //   if (!isLoggedIn) {
+  //     alert("로그인 후 AI 채팅을 이용할 수 있습니다.");
+  //     navigate('/login');
+  //   }
+  // }, [isLoggedIn, navigate]);
+
+  // if (!isLoggedIn) {
+  //   return null;
+  // }
 
   // 새 채팅 생성
   const handleNewChat = () => {

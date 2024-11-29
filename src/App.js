@@ -39,7 +39,7 @@ function App() {
           <Route path="/search/:query" element={<SearchResult />} />
           <Route path="/movie/:movie_id" element={<MovieDetail />} />
           <Route path="/genre/:genreId" element={<GenreMovies />} />
-          <Route path="/chat" element={<ChatApp />} />
+          <Route path="/chat" element={<ChatApp isLoggedIn={isLoggedIn} />} />
         </Routes>
       </div>
     </div>

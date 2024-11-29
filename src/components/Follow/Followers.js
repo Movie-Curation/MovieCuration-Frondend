@@ -7,7 +7,7 @@ const Followers = ({ user_id }) => {
     const [followers, setFollowers] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // 백엔드에서 팔로워 목록 받아오는 기능
+    // 백엔드에서 유저를 팔로워하는 사람들 목록 받아오는 기능
     useEffect(() => {
         const fetchFollowers = async () => {
             try {

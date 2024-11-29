@@ -219,8 +219,18 @@ function MovieDetail() {
         const confirmReport = window.confirm("이 리뷰를 신고하시겠습니까?")
         if (!confirmReport) return;
 
+        // 신고 사유와 설명 입력받기
+        const reason = prompt("신고 사유를 선택하세요: spam, hate, violence, other");
+        if (!reason || !["spam", "hate", "violence", "other"].includes(reason)) {
+            alert("올바른 신고 사유를 선택하세요.");
+            return;
+        }
+
+        const description = prompt("신고 사유에 대한 상세 설명을 입력해주세요. (선택 사항)");
+
         try {
-            const response = await axios.post(`/api/reviews/${review_id}/report`, { username: loggedInUser.username }); // 백엔드에 리뷰 신고 전송
+            // 백엔드에 신고 데이터 전송
+            const response = await axios.post(`/api/reviews/${review_id}/report`, { reason, description, }); // 백엔드에 리뷰 신고 전송
 
             if (response.status === 200) {
                 alert("리뷰 신고가 접수되었습니다.");

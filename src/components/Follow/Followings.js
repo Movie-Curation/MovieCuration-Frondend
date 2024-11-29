@@ -7,7 +7,7 @@ const Followings = ({ user_id }) => {
     const [followings, setFollowings] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // 백엔드에서 나를 팔로우하는 유저 목록 받아오는 기능
+    // 백엔드에서 유저가 팔로우하는 유저 목록 받아오는 기능
     useEffect(() => {
         const fetchFollowings = async () => {
             try {
@@ -16,7 +16,7 @@ const Followings = ({ user_id }) => {
                 });
                 setFollowings(response.data);
             } catch (error) {
-                const errorMessage = error.response?.data?.message || "팔로워 목록을 불러오지 못했습니다";
+                const errorMessage = error.response?.data?.message || "팔로우 목록을 불러오지 못했습니다";
                 alert(`에러 발생: ${errorMessage}`);
             } finally {
                 setLoading(false);

@@ -107,7 +107,7 @@ const SignUp = () => {
                     <option value="">선택하세요</option>
                     <option value="male">남성</option>
                     <option value="female">여성</option>
-                    <option value="secret">비밀</option>
+                    <option value="other">기타</option>
                 </select>
 
                 <label>닉네임:</label>
