@@ -133,6 +133,11 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
         navigate(`/genre/${genreId}`);
     };
 
+    // AI 버튼 클릭 시 ChatApp으로 이동
+    const handleAiButtonClick = () => {
+        navigate("/chat");
+    };
+
     // 고객지원 페이지로 이동
     const handleCustomerSupportClick = () => {
         navigate("customer-support");
@@ -158,7 +163,7 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
             </div>
             <div className="navbar__bottom">
                 <div className="category" onClick={() => setIsDropDownOpen((prev) => !prev)}>카테고리</div>
-                <button className="ai-btn">Your AI</button>
+                <button className="ai-btn" onClick={handleAiButtonClick}>Your AI</button>
             </div>
 
             {isDropdownOpen && (

@@ -13,6 +13,7 @@ import SearchResult from './routes/Search/SearchResult';
 import ScrollToTop from './components/ScrollToTop';
 import Followers from './components/Follow/Followers';
 import Followings from './components/Follow/Followings';
+import ChatApp from './routes/AIChat/ChatApp';
 import CustomerSupport from './components/CustomerSupport/CustomerSupport';
 import './App.css';
 
@@ -21,22 +22,27 @@ function App() {
 
   return (
   <Router>
+    <div className="app-container">
     <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-    <ScrollToTop />
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/login" element={<LogIn setIsLoggedIn={setIsLoggedIn} />} />
-      <Route path="/mypage" element={<MyPage />} />
-      <Route path="/profile-update" element={<ProfileUpdate />} />
-      <Route path="/profile/:user_id" element={<UserProfile />} />
-      <Route path="/customer-support" element={<CustomerSupport />} />
-      <Route path="/followers" element={<Followers />} />
-      <Route path="/followings" element={<Followings />} />
-      <Route path="/search/:query" element={<SearchResult />} />
-      <Route path="/movie/:movie_id" element={<MovieDetail />} />
-      <Route path="/genre/:genreId" element={<GenreMovies />} />
-    </Routes>
+      <div className="routes-container">
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<LogIn setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/profile-update" element={<ProfileUpdate />} />
+          <Route path="/profile/:user_id" element={<UserProfile />} />
+          <Route path="/customer-support" element={<CustomerSupport />} />
+          <Route path="/followers" element={<Followers />} />
+          <Route path="/followings" element={<Followings />} />
+          <Route path="/search/:query" element={<SearchResult />} />
+          <Route path="/movie/:movie_id" element={<MovieDetail />} />
+          <Route path="/genre/:genreId" element={<GenreMovies />} />
+          <Route path="/chat" element={<ChatApp />} />
+        </Routes>
+      </div>
+    </div>
   </Router>
   );
 }

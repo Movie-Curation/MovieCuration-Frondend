@@ -1,0 +1,149 @@
+/* 컨테이너 */
+.chat-container {
+    display: flex;
+    height: calc(100vh); /* Navbar 제외 높이 */
+  }
+  
+  /* 사이드바 */
+  .chat-sidebar {
+    width: 250px;
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 120px;
+  }
+  
+  .new-chat-btn {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .new-chat-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .chat-history {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .chat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    background-color: white;
+  }
+  
+  .chat-item.active {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .chat-item:hover {
+    background-color: #e5e5e5;
+  }
+
+  .chat-title {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .delete-btn {
+    background-color: transparent;
+    border: none;
+    color: red;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .delete-btn:hover {
+    color: darkred;
+  }
+  
+  /* 메인 채팅 영역 */
+  .chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    padding-top: 100px;
+  }
+  
+  /* 채팅 내용 */
+  .chat-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .chat-message {
+    max-width: 60%;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    position: relative;
+  }
+  
+  .chat-message.user {
+    align-self: flex-end;
+    background-color: #007bff;
+    color: white;
+    border-bottom-right-radius: 0;
+  }
+  
+  .chat-message.ai {
+    align-self: flex-start;
+    background-color: #e5e5ea;
+    color: black;
+    border-bottom-left-radius: 0;
+  }
+  
+  /* 입력창 */
+  .chat-input {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #ffffff;
+    border-top: 1px solid #ddd;
+  }
+  
+  .chat-input input {
+    flex: 1;
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-right: 10px;
+  }
+  
+  .chat-input button {
+    height: 40px;
+    padding: 0 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .chat-input button:hover {
+    background-color: #0056b3;
+  }
+  
