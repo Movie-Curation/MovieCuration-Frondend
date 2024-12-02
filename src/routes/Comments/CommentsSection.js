@@ -14,7 +14,7 @@ const CommentsSection = ({ review_id, isLoggedIn, loggedInUser }) => {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-            const response = await axios.get(`/api/reviews/${review_id}/comments`);
+            const response = await axios.get(`/api/accounts/reviews/${review_id}/comments/`);
             setComments(response.data);
             } catch (error) {
             console.error("Error fetching comments: ", error);
@@ -29,7 +29,7 @@ const CommentsSection = ({ review_id, isLoggedIn, loggedInUser }) => {
         if (!newComment.trim()) return ;
 
         try {
-            const response = await axios.post(`/api/reviews/${review_id}/comments`, {
+            const response = await axios.post(`/api/accounts/reviews/${review_id}/comments/`, {
                 content: newComment,
             });
 
@@ -46,7 +46,7 @@ const CommentsSection = ({ review_id, isLoggedIn, loggedInUser }) => {
     
         try {
             const response = await axios.put(
-                `/api/reviews/${review_id}/comments/${comment_id}`,
+                `/api/accounts/reviews/${review_id}/comments/${comment_id}`,
                 { content: editCommentContent }
             );
             
@@ -67,7 +67,7 @@ const CommentsSection = ({ review_id, isLoggedIn, loggedInUser }) => {
     // 리뷰 댓글 삭제
     const handleDeleteComment = async (comment_id) => {
         try {
-            await axios.delete(`/api/reviews/${review_id}/comments/${comment_id}`);
+            await axios.delete(`/api/accounts/reviews/${review_id}/comments/${comment_id}`);
     
             setComments((prevComments) =>
                 prevComments.filter((comment) => comment.id !== comment_id)

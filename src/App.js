@@ -12,7 +12,7 @@ import MovieDetail from './routes/Movie/MovieDetail';
 import SearchResult from './routes/Search/SearchResult';
 import ScrollToTop from './components/ScrollToTop';
 import Followers from './components/Follow/Followers';
-import Followings from './components/Follow/Followings';
+import Following from './components/Follow/Following';
 import ChatApp from './routes/AIChat/ChatApp';
 import CustomerSupport from './components/CustomerSupport/CustomerSupport';
 import './App.css';
@@ -35,7 +35,7 @@ function App() {
           <Route path="/profile/:user_id" element={<UserProfile />} />
           <Route path="/customer-support" element={<CustomerSupport />} />
           <Route path="/followers" element={<Followers />} />
-          <Route path="/followings" element={<Followings />} />
+          <Route path="/following" element={<Following />} />
           <Route path="/search/:query" element={<SearchResult />} />
           <Route path="/movie/:movie_id" element={<MovieDetail />} />
           <Route path="/genre/:genreId" element={<GenreMovies />} />

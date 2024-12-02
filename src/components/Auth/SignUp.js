@@ -3,21 +3,37 @@ import axios from "axios";
 import './SignUp.css';
 
 const genres = [
-    "액션", "모험", "애니메이션", "코미디", "범죄", "다큐멘터리", "드라마",
-    "가족", "판타지", "역사", "공포", "음악", "미스터리", "로맨스", "SF",
-    "TV영화", "스릴러", "전쟁", "서부극"
+    {id:28, name: "액션"},
+    {id:12, name: "모험"},
+    {id:16, name: "애니메이션"},
+    {id:35, name: "코미디"},
+    {id:80, name: "범죄"},
+    {id:99, name: "다큐멘터리"},
+    {id:18, name: "드라마"},
+    {id:10751, name: "가족"},
+    {id:14, name: "판타지"},
+    {id:36, name: "역사"},
+    {id:27, name: "공포"},
+    {id:10402, name: "음악"},
+    {id:9648, name: "미스터리"},
+    {id:10749, name: "로맨스"},
+    {id:878, name: "SF"},
+    {id:10770, name: "TV영화"},
+    {id:53, name: "스릴러"},
+    {id:10752, name: "전쟁"},
+    {id:37, name: "서부극"}
 ]
 
 const SignUp = () => {
     const [formData, setFormData] = useState({
-        id: "",
+        userid: "",
         email: "",
         password: "",
-        confirmPassword: "",
+        password2: "",
         name: "",
         gender: "",
         nickname: "",
-        favoriteGenres: []
+        preference: []
     });
 
     const [successMessage, setSuccessMessage] = useState("");
@@ -37,12 +53,12 @@ const SignUp = () => {
         if (checked) {
             setFormData((prevState) => ({
                 ...prevState,
-                favoriteGenres: [...prevState.favoriteGenres, value]
+                preference: [...prevState.preference, parseInt(value)]
             }));
         } else {
             setFormData((prevState) => ({
                 ...prevState,
-                favoriteGenres: prevState.favoriteGenres.filter((genre) => genre !== value)
+                preference: prevState.preference.filter((genreId) => genreId !== parseInt(value))
             }));
         }
     }
@@ -52,27 +68,32 @@ const SignUp = () => {
         setSuccessMessage("");
         setErrorMessage("");
 
-        if (formData.password !== formData.confirmPassword) {
+        if (formData.password !== formData.password2) {
             setErrorMessage("비밀번호가 일치하지 않습니다.")
             return;
         }
 
         try {
-            const response = await axios.post("http://localhost:8000/api/signup/", formData); 
-            // API 엔드포인트는 api/signup/
+            const response = await axios.post("http://localhost:8000/api/accounts/register/", formData,
+                { headers: {
+                    "Content-Type": "application/json",
+                    },
+                }
+            ); 
+            // API 엔드포인트는 api/accounts/register
 
             if (response.status === 201) {
                 setSuccessMessage("회원가입이 완료되었습니다.");
                 console.log("Response data: ", response.data);
                 setFormData({
-                    id: "",
+                    userid: "",
                     email: "",
                     password: "",
-                    confirmPassword: "",
+                    password2: "",
                     name: "",
                     gender: "",
                     nickname: "",
-                    favoriteGenres: []
+                    preference: []
                 }); // 폼 초기화
             } else {
                 setErrorMessage(response.data.message || "회원가입에 실패했습니다.");
@@ -88,7 +109,7 @@ const SignUp = () => {
             <h2>회원가입</h2>
             <form onSubmit={handleSubmit}>
                 <label>ID:</label>
-                <input type="text" name="id" value={formData.id} onChange={handleChange} required />
+                <input type="text" name="userid" value={formData.userid} onChange={handleChange} required />
 
                 <label>이메일:</label>
                 <input type="email" name="email" value={formData.email} onChange={handleChange} required />
@@ -97,7 +118,7 @@ const SignUp = () => {
                 <input type="password" name="password" value={formData.password} onChange={handleChange} required />
 
                 <label>비밀번호 확인:</label>
-                <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
+                <input type="password" name="password2" value={formData.password2} onChange={handleChange} required />
 
                 <label>이름:</label>
                 <input type="text" name="name" value={formData.name} onChange={handleChange} required />
@@ -105,9 +126,9 @@ const SignUp = () => {
                 <label>성별:</label>
                 <select name="gender" value={formData.gender} onChange={handleChange} required>
                     <option value="">선택하세요</option>
-                    <option value="male">남성</option>
-                    <option value="female">여성</option>
-                    <option value="other">기타</option>
+                    <option value="M">남성</option>
+                    <option value="F">여성</option>
+                    <option value="O">기타</option>
                 </select>
 
                 <label>닉네임:</label>
@@ -116,15 +137,15 @@ const SignUp = () => {
                 <label>좋아하는 영화 장르:</label>
                 <div className="genre-checkboxes">
                     {genres.map((genre) => (
-                        <div key={genre}>
+                        <div key={genre.id}>
                             <label>
                                 <input
                                     type="checkbox"
-                                    value={genre}
-                                    checked={formData.favoriteGenres.includes(genre)}
+                                    value={genre.id}
+                                    checked={formData.preference.includes(genre.id)}
                                     onChange={handleGenreChange}
                                 />
-                                {genre}
+                                {genre.name}
                             </label>
                         </div>
                     ))}

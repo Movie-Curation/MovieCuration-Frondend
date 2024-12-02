@@ -23,7 +23,7 @@ const MyPage = () => {
                 setLoading(false); // 개발자 모드에서 Mockup Data 사용
             } else {
                 try {
-                    const response = await axios.get("api/profile/mypage", {
+                    const response = await axios.get("api/accounts/profile/", {
                         withCredentials: true, // 쿠키 인증이 필요한 경우 추가, api 엔드포인트는 api/profile/mypage
                     });
                     setUserData(response.data);
@@ -37,7 +37,7 @@ const MyPage = () => {
 
         const fetchFavoriteMovies = async () => {
             try {
-                const response = await axios.get("api/favorites", {
+                const response = await axios.get("api/accounts/favorites", {
                     withCredentials: true, // 쿠키 인증이 필요한 경우 추가 API 엔드포인트는 api/favorites
                 });
                 setFavoriteMovies(response.data);
@@ -95,7 +95,7 @@ const MyPage = () => {
                     <p className="stat-label">팔로우</p>
                     <p className="stat-value">{userData.followers}</p>
                 </Link>
-                <Link to="/followings" className="stat">
+                <Link to="/following" className="stat">
                     <p className="stat-label">팔로잉</p>
                     <p className="stat-value">{userData.following}</p>
                 </Link>

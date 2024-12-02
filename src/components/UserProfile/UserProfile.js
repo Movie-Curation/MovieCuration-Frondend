@@ -11,7 +11,7 @@ const UserProfile = () => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isFollwing, setIsFollwing] = useState(false);
+    const [isFollowing, setIsFollowing] = useState(false);
     const [favoriteMovies, setFavoriteMovies] = useState([]);
     const [showAllFavorites, setShowAllFavorites] = useState(false);
     const [showAllReviews, setShowAllReviews] = useState(false);
@@ -21,20 +21,20 @@ const UserProfile = () => {
             if (process.env.NODE_ENV === "development") {
                 // 개발 모드에서 Mock data 사용
                 setUserData(mockUserProfile);
-                setIsFollwing(mockUserProfile.isFollwing);
+                setIsFollowing(mockUserProfile.isFollowing);
                 setFavoriteMovies(mockUserProfile.favorites || []);
                 setLoading(false);
             } else {
                 try {
-                    const userResponse = await axios.get(`/api/profile/${user_id}/`, {
+                    const userResponse = await axios.get(`/api/accounts/profile/${user_id}/`, {
                         withCredentials: true,
                     });
-                    const favoriteResponse = await axios.get(`/api/favorites/${user_id}`, {
+                    const favoriteResponse = await axios.get(`/api/accounts/favorites/`, {
                         withCredentials: true,
                     });
                     setUserData(userResponse.data);
                     setFavoriteMovies(favoriteResponse.data);
-                    setIsFollwing(userResponse.data.isFollwing);
+                    setIsFollowing(userResponse.data.isFollowing);
 
                 } catch (error) {
                     setError(error.response?.data?.message || "유저 정보를 불러오지 못했습니다.");
@@ -50,18 +50,18 @@ const UserProfile = () => {
     // 팔로우/언팔로우 핸들러
     const handleFollowToggle = async () => {
         try {
-            if (isFollwing) {
+            if (isFollowing) {
                 // 언팔로우
-                await axios.delete(`/api/follow/${user_id}`, {
+                await axios.delete(`/api/accounts/follow/${user_id}`, {
                     withCredentials: true,
                 });
-                setIsFollwing(false);
+                setIsFollowing(false);
             } else {
                 // 팔로우
-                await axios.post(`/api/follow/${user_id}`, {}, {
+                await axios.post(`/api/accounts/`, { to_user_id: user_id }, {
                     withCredentials: true,
                 });
-                setIsFollwing(true);
+                setIsFollowing(true);
             }
         } catch (error) {
             alert("팔로우/언팔로우에 실패했습니다.");
@@ -91,10 +91,10 @@ const UserProfile = () => {
                 </div>
                 {/* 팔로우/언팔로우 버튼 */}
                 <button 
-                    className={`follow-button ${isFollwing ? "following" : ""}`}
+                    className={`follow-button ${isFollowing ? "following" : ""}`}
                     onClick={handleFollowToggle}
                 >
-                    {isFollwing ? "언팔로우" : "팔로우"}
+                    {isFollowing ? "언팔로우" : "팔로우"}
                 </button>
             </div>
 
@@ -104,7 +104,7 @@ const UserProfile = () => {
                     <p className="stat-label">팔로워</p>
                     <p className="stat-value">{userData.followers}</p>
                 </Link>
-                <Link to="/followings" className="stat">
+                <Link to="/following" className="stat">
                     <p className="stat-label">팔로잉</p>
                     <p className="stat-value">{userData.following}</p>
                 </Link>

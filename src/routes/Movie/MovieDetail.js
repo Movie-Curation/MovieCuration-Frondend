@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Recommendations from "../../components/Recommendations";
+// import Recommendations from "../../components/Recommendations";
 import { FaStar, FaHeart, FaRegHeart, FaRegThumbsDown, FaRegThumbsUp } from "react-icons/fa";
 import { PiSiren } from "react-icons/pi";
 import axios from "axios";
@@ -10,7 +10,7 @@ import CommentsSection from "../Comments/CommentsSection";
 // import mockLoginData from "./mockLoginData";
 
 function MovieDetail() {
-    const { movie_id } = useParams();
+    const { movie_id, movieCd } = useParams();
     const [movie, setMovie] = useState(null);
     const [director, setDirector] = useState(null);
     const [cast, setCast] = useState([]);
@@ -19,36 +19,7 @@ function MovieDetail() {
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [review, setReview] = useState("");
-    const [reviews, setReviews] = useState([
-            // 예시 초기 데이터
-        {
-            id: 1,
-            user: "User123",
-            content: "Great movie!",
-            rating: 8,
-            created_at: "2024-11-20T10:00:00",
-            likes: 101,
-            dislikes: 2,
-        },
-        {
-            id: 2,
-            user: "TEST",
-            content: "Boring",
-            rating: 3,
-            created_at: "2024-11-20T10:30:00",
-            likes: 5,
-            dislikes: 7,
-        },
-        {
-            id: 3,
-            user: "example",
-            content: "Wow!",
-            rating: 10,
-            created_at: "2024-11-20T12:30:00",
-            likes: 3,
-            dislikes: 1,
-        }
-    ]);
+    const [reviews, setReviews] = useState([]);
     const [score, setScore] = useState([false, false, false, false, false, false, false, false, false, false]);
 
     // 로그인 상태 확인
@@ -72,46 +43,40 @@ function MovieDetail() {
     // 영화 정보 가져오기
     useEffect(() => {
         const fetchMovieDetail = async () => {
-            const api_key = process.env.REACT_APP_TMDB_API_KEY;
-            const movieUrl = `https://api.themoviedb.org/3/movie/${movie_id}?api_key=${api_key}&language=ko-KR`;
-            const castUrl = `https://api.themoviedb.org/3/movie/${movie_id}/credits?api_key=${api_key}&language=ko-KR`;
-            const recommendationsUrl = `https://api.themoviedb.org/3/movie/${movie_id}/recommendations?api_key=${api_key}&language=ko-KR`;
-
             try {
-                const [movieResponse, castResponse, recommendationsResponse] = await Promise.all([
-                    fetch(movieUrl),
-                    fetch(castUrl),
-                    fetch(recommendationsUrl)
-                ]);
-                const movieData = await movieResponse.json();
-                const castData = await castResponse.json();
-                const recommendationsData = await recommendationsResponse.json();
+                const response = await axios.get(`/movie/api/movies/${movieCd}/`);
+                const movieData = response.data;
 
                 setMovie(movieData);
-                setCast(castData.cast.slice(0, 5));
-
-                const directorData = castData.crew.find(({job}) => job === 'Director');
-                setDirector(directorData ? directorData.name : "감독 정보 없음");
-
-                setRecommendations(recommendationsData.results);
-
+                setDirector(movieData.kobis.director || "감독 정보 없음");
+                setCast(movieData.tmdb.cast.slice(0, 5));
             } catch (error) {
-                console.error("영화 정보를 가져오는 데 실패했습니다: ", error);
+                console.error("영화 정보를 가져오는 데 실패했습니다:", error);
+            }
+        };
+
+        const fetchSimilarMovies = async () => {
+            try {
+                const response = await axios.get(`/movie/api/movies/${movieCd}/similar`);
+                setRecommendations(response.data);
+            } catch (error) {
+                console.error("추천 영화를 가져오는 데 실패했습니다:", error);
             }
         };
 
         const fetchReviews = async () => {
             try {
-                const response = await axios.get(`/api/movies/${movie_id}/reviews`); // 백엔드에서 리뷰를 가져오는 API 경로
-                setReviews(response.data); // 리뷰 데이터를 상태에 저장
+                const response = await axios.get(`/api/accounts/reviews/movies/${movie_id}`);
+                setReviews(response.data);
             } catch (error) {
-                console.error("리뷰를 가져오는 데 실패했습니다: ", error);
+                console.error("리뷰를 가져오는 데 실패했습니다:", error);
             }
         };
 
         fetchMovieDetail();
+        fetchSimilarMovies();
         fetchReviews();
-    }, [movie_id]);
+    }, [movie_id, movieCd])
 
     // 실제 리뷰 작성 데이터
     const handleReviewSubmit = async () => {
@@ -120,9 +85,9 @@ function MovieDetail() {
         try {
             const response = await axios.post("api/reviews", {
                 movie_id,
-                review,
+                comment: review,
                 rating: score.filter(Boolean).length,
-                created_at: new Date().toLocaleString()
+                // created_at: new Date().toLocaleString()
             });
             setReviews((prev) => [...prev, response.data]);
             setReview("");
@@ -155,7 +120,7 @@ function MovieDetail() {
         }
     
         try {
-            const response = await axios.post("/api/favorite", { movie_id: movie.id });
+            const response = await axios.post("/api/accounts/favorites", { movieCd: movie.id });
             if (response.status === 200) {
                 setIsFavorite((prev) => !prev); // 상태 반전
             } else {
@@ -170,7 +135,7 @@ function MovieDetail() {
     const handleLike = async(review_id) => {
         try {
             // 백엔드에 좋아요 클릭 이벤트 전송
-            await axios.post(`/api/revies/${review_id}/like`, { username: loggedInUser.username });
+            await axios.post(`/api/accounts/reviews/${review_id}/reaction`, { username: loggedInUser.username });
 
             // 백엔드에서 해당 리뷰의 최신 좋아요 수 받아오기
             const response = await axios.get(`/api/review/${review_id}`);
@@ -191,10 +156,10 @@ function MovieDetail() {
     const handleDislike = async (review_id) => {
         try {
             // 백엔드에 싫어요 클릭 이벤트 전송
-            await axios.post(`/api/reviews/${review_id}/dislike`, { username: loggedInUser.username });
+            await axios.post(`/api/accounts/reviews/${review_id}/reaction`, { username: loggedInUser.username });
 
             // 백엔드에서 해당 리뷰의 최신 싫어요 수 받아오기
-            const response = await axios.get(`/api/review/${review_id}`);
+            const response = await axios.get(`/api/accounts/review/${review_id}/reaction`);
             const updatedReview = response.data;
 
             setReviews((prev) =>
@@ -230,9 +195,9 @@ function MovieDetail() {
 
         try {
             // 백엔드에 신고 데이터 전송
-            const response = await axios.post(`/api/reviews/${review_id}/report`, { reason, description, }); // 백엔드에 리뷰 신고 전송
+            const response = await axios.post(`/api/reviews/${review_id}/report/`, { reason, description, }); // 백엔드에 리뷰 신고 전송
 
-            if (response.status === 200) {
+            if (response.status === 200 && response.status < 300) {
                 alert("리뷰 신고가 접수되었습니다.");
             } else {
                 alert("신고 처리에 실패했습니다.");
@@ -257,7 +222,7 @@ function MovieDetail() {
     
     const handleEditSubmit = async (review_id) => {
         try {
-            await axios.patch(`/api/reviews/${review_id}`, {
+            await axios.patch(`/api/accounts/reviews/${review_id}`, {
                 content: editContent,
                 rating: editRating,
             });
@@ -279,7 +244,7 @@ function MovieDetail() {
     
     const handleDelete = async (review_id) => {
         try {
-            await axios.delete(`/api/reviews/${review_id}`);
+            await axios.delete(`/api/accounts/reviews/${review_id}/delete`);
             setReviews((prev) => prev.filter((review) => review.id !== review_id));
         } catch (error) {
             console.error("Error deleting review: ", error);
@@ -308,11 +273,11 @@ function MovieDetail() {
 
     return (
         <div className="movie-detail">
-            <h1>{movie.title}</h1>
+            <h1>{movie.kobis.movieNm}</h1>
             <div className="poster">
                 <img
-                    src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                    alt={movie.title}
+                    src={movie.tmdb.poster_url}
+                    alt={movie.kobis.movieNm}
                 />
             </div>
 
@@ -334,8 +299,8 @@ function MovieDetail() {
 
                 <h3>주연 배우</h3>
                 <div className="cast">
-                    {cast.map((actor) => (
-                        <div key={actor.id} className="actor">
+                    {cast.map((actor, index) => (
+                        <div key={index} className="actor">
                             {actor.name}
                         </div>
                     ))}
@@ -344,12 +309,12 @@ function MovieDetail() {
 
             <div className="overview">
                 <h3>줄거리</h3>
-                <p>{movie.overview}</p>
+                <p>{movie.tmdb.overview || "줄거리 정보 없음"}</p>
             </div>
 
             <div className="vote-average">
                 <h3>평균 별점</h3>
-                <p>⭐: {movie.vote_average ? movie.vote_average.toFixed(2) : 'N/A'}</p>
+                <p>⭐: {movie.tmdb.vote_average ? movie.tmdb.vote_average.toFixed(2) : 'N/A'}</p>
             </div>
 
             {isLoggedIn && (
@@ -429,7 +394,7 @@ function MovieDetail() {
                         ) : (
                             <div>
                                 <p><strong>
-                                    <Link to={`/profile/${review.user_id}`} className="review-user-link">
+                                    <Link to={`api/accounts/profile/${review.user_id}`} className="review-user-link">
                                     {review.user}
                                     {review.likes > 100 && " 🏆"}
                                     </Link>
@@ -469,9 +434,14 @@ function MovieDetail() {
             </div>
             )}
             {/* 추천 영화 섹션 */}
-            {recommendations.length > 0 && (
-                <Recommendations recommendations={recommendations} />
-            )}
+            <h2> 추천 영화 </h2>
+            <ul>
+                {recommendations.map((rec) => (
+                    <li key={rec.kobis.movieCd}>
+                        {rec.kobis.movieNm} ({rec.kobis.prdtYear})
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
