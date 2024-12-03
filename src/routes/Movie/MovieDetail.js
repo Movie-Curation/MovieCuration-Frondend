@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-// import Recommendations from "../../components/Recommendations";
+import { useParams, Link } from "react-router-dom";
 import { FaStar, FaHeart, FaRegHeart, FaRegThumbsDown, FaRegThumbsUp } from "react-icons/fa";
 import { PiSiren } from "react-icons/pi";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import "./MovieDetail.css";
 import CommentsSection from "../Comments/CommentsSection";
-// import mockLoginData from "./mockLoginData";
 
 function MovieDetail() {
-    const { movie_id, movieCd } = useParams();
+    const { movieCd } = useParams();
+    const [isLoading, setIsLoading] = useState(true);
     const [movie, setMovie] = useState(null);
-    const [director, setDirector] = useState(null);
+    const [director, setDirector] = useState([]);
     const [cast, setCast] = useState([]);
+    // const [companies, setCompanies] = useState([]);
+    // const [staffs, setStaffs] = useState([]);
     const [recommendations, setRecommendations] = useState([]);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [loggedInUser, setLoggedInUser] = useState(null);
@@ -48,17 +48,25 @@ function MovieDetail() {
                 const movieData = response.data;
 
                 setMovie(movieData);
-                setDirector(movieData.kobis.director || "감독 정보 없음");
-                setCast(movieData.tmdb.cast.slice(0, 5));
+                setIsLoading(false);
+                setDirector(
+                    Array.isArray(movieData.kobis?.director)
+                    ? movieData.kobis.director
+                    : [movieData.kobis?.director] // director가 문자열이라면 배열로 변환
+                );
+                setCast(movieData.kobis?.actors?.length ? movieData.kobis.actors : movieData.tmdb?.cast || []);
+                // setStaffs(movieData.kobis?.staffs_details?.length ? movieData.kobis.staffs_details : movieData.tmdb?.crew || []);
+                // setCompanies(movieData.kobis?.companies?.length ? movieData.kobis.companies : movieData.tmdb?.production_companies || []);
             } catch (error) {
                 console.error("영화 정보를 가져오는 데 실패했습니다:", error);
+                setIsLoading(false);
             }
         };
 
         const fetchSimilarMovies = async () => {
             try {
                 const response = await axios.get(`/movie/api/movies/${movieCd}/similar`);
-                setRecommendations(response.data);
+                setRecommendations(response.data.results.slice(0, 20));
             } catch (error) {
                 console.error("추천 영화를 가져오는 데 실패했습니다:", error);
             }
@@ -66,7 +74,7 @@ function MovieDetail() {
 
         const fetchReviews = async () => {
             try {
-                const response = await axios.get(`/api/accounts/reviews/movies/${movie_id}`);
+                const response = await axios.get(`/api/accounts/reviews/movies/${movieCd}`);
                 setReviews(response.data);
             } catch (error) {
                 console.error("리뷰를 가져오는 데 실패했습니다:", error);
@@ -76,7 +84,7 @@ function MovieDetail() {
         fetchMovieDetail();
         fetchSimilarMovies();
         fetchReviews();
-    }, [movie_id, movieCd])
+    }, [movieCd])
 
     // 실제 리뷰 작성 데이터
     const handleReviewSubmit = async () => {
@@ -84,7 +92,7 @@ function MovieDetail() {
 
         try {
             const response = await axios.post("api/reviews", {
-                movie_id,
+                movieCd,
                 comment: review,
                 rating: score.filter(Boolean).length,
                 // created_at: new Date().toLocaleString()
@@ -110,7 +118,7 @@ function MovieDetail() {
     const [isFavorite, setIsFavorite] = useState(false);
 
     const handleFavoriteClick = async () => {
-        if (!movie || !movie.id) {
+        if (!movie || !movie.kobis.movieCd) {
             console.error("영화 데이터가 유효하지 않습니다.");
             return;
         }
@@ -120,7 +128,7 @@ function MovieDetail() {
         }
     
         try {
-            const response = await axios.post("/api/accounts/favorites", { movieCd: movie.id });
+            const response = await axios.post("/api/accounts/favorites", { movieCd: movie.kobis.movieCd });
             if (response.status === 200) {
                 setIsFavorite((prev) => !prev); // 상태 반전
             } else {
@@ -134,11 +142,11 @@ function MovieDetail() {
     // 리뷰 좋아요/싫어요 이벤트 핸들러
     const handleLike = async(review_id) => {
         try {
-            // 백엔드에 좋아요 클릭 이벤트 전송
-            await axios.post(`/api/accounts/reviews/${review_id}/reaction`, { username: loggedInUser.username });
+            // 백엔드에 리뷰 좋아요 클릭 이벤트 전송
+            await axios.post(`/api/accounts/reviews/${review_id}/reaction/`, { username: loggedInUser.username });
 
             // 백엔드에서 해당 리뷰의 최신 좋아요 수 받아오기
-            const response = await axios.get(`/api/review/${review_id}`);
+            const response = await axios.get(`/api/accounts/reviews/${review_id}/reaction/`);
             const updatedReview = response.data;
 
             setReviews((prev) =>
@@ -156,10 +164,10 @@ function MovieDetail() {
     const handleDislike = async (review_id) => {
         try {
             // 백엔드에 싫어요 클릭 이벤트 전송
-            await axios.post(`/api/accounts/reviews/${review_id}/reaction`, { username: loggedInUser.username });
+            await axios.post(`/api/accounts/reviews/${review_id}/reaction/`, { username: loggedInUser.username });
 
             // 백엔드에서 해당 리뷰의 최신 싫어요 수 받아오기
-            const response = await axios.get(`/api/accounts/review/${review_id}/reaction`);
+            const response = await axios.get(`/api/accounts/reviews/${review_id}/reaction/`);
             const updatedReview = response.data;
 
             setReviews((prev) =>
@@ -273,12 +281,22 @@ function MovieDetail() {
 
     return (
         <div className="movie-detail">
-            <h1>{movie.kobis.movieNm}</h1>
+            <h1>{movie.kobis.movieNm} ({movie.kobis.prdtYear})</h1>
             <div className="poster">
-                <img
-                    src={movie.tmdb.poster_url}
-                    alt={movie.kobis.movieNm}
-                />
+                {movie.tmdb?.poster_url ? (
+                    <img src={movie.tmdb.poster_url} alt={movie.movieNm} />
+                ) : (
+                    <div>No Poster Available</div>
+                )}
+            </div>
+            <div className="movie-info">
+                <p><strong>제작연도: </strong>{movie.kobis.prdtYear}</p>
+                <p><strong>개봉일: </strong>{movie.kobis.openDt}</p>
+                <p><strong>장르: </strong>{movie.kobis.genreNm}</p>
+                <p><strong>상영시간: </strong>{movie.kobis.showTm}분</p>
+                <p><strong>관람등급: </strong>{movie.kobis.watchGradeNm}</p>
+                <p><strong>제작상태: </strong>{movie.kobis.prdtStatNm}</p>
+                <p><strong>제작국가: </strong>{movie.kobis.nationNm}</p>
             </div>
 
             {movie && (
@@ -286,6 +304,7 @@ function MovieDetail() {
                     <button
                         className={`favorite-button ${isFavorite ? "favorited" : ""}`}
                         onClick={handleFavoriteClick}
+                        disabled={isLoading || !movie}
                     >
                         {isFavorite ? <FaHeart color="#007BFF"/> : <FaRegHeart />}
                         {isFavorite ? " 좋아요 취소" : " 좋아요"}
@@ -295,16 +314,40 @@ function MovieDetail() {
 
             <div className="info-section">
                 <h3>감독</h3>
-                <p>{director}</p>
+                <ul>
+                    {Array.isArray(director) && director.length > 0 ? (
+                        director.map((dir, index) => (
+                            <li key={index}>{dir.peopleNm || dir}</li>
+                        ))
+                    ) : (
+                        <p>감독 정보 없음</p>
+                    )}
+                </ul>
 
-                <h3>주연 배우</h3>
-                <div className="cast">
-                    {cast.map((actor, index) => (
-                        <div key={index} className="actor">
-                            {actor.name}
-                        </div>
+                <h3>출연진</h3>
+                <ul>
+                    {cast.map((actor) => (
+                        <li key={actor.id || actor.name}>
+                            {actor.peopleNm || actor.name || "N/A"}
+                        </li>
                     ))}
-                </div>
+                </ul>
+                {/* <h3>참여 영화사</h3>
+                <ul>
+                    {companies.map((company) => (
+                        <li key={company.id}>
+                            {company.companyNm} ({company.companyPartNm || "N/A"})
+                        </li>
+                    ))}
+                </ul> */}
+                {/* <h3>스태프</h3>
+                <ul>
+                    {staffs.map((staff) => (
+                        <li key={staff.id || staff.name}>
+                           {staff.peopleNm || staff.name} - {staff.staffRoleNm || staff.job || "N/A"}
+                        </li>
+                    ))}
+                </ul> */}
             </div>
 
             <div className="overview">
@@ -435,13 +478,23 @@ function MovieDetail() {
             )}
             {/* 추천 영화 섹션 */}
             <h2> 추천 영화 </h2>
-            <ul>
-                {recommendations.map((rec) => (
-                    <li key={rec.kobis.movieCd}>
-                        {rec.kobis.movieNm} ({rec.kobis.prdtYear})
-                    </li>
+            <div className="recommended-movies">
+                {recommendations.slice(0, 20).map((rec) => (
+                    <Link key={rec.kobis.movieCd} to={`/movies/${rec.kobis.movieCd}`} className="movie-card-link">
+                    <div className="movie-card">
+                        <img 
+                            className="movie-poster" 
+                            src={rec.tmdb?.poster_url || 'https://placehold.co/500x750?text=No+Poster'} 
+                            alt={rec.kobis.movieNm} 
+                        />
+                        <div className="movie-info">
+                            <h4>{rec.kobis.movieNm}</h4>
+                            {/* <p>{rec.kobis.prdtYear}</p> */}
+                        </div>
+                    </div>
+                    </Link>
                 ))}
-            </ul>
+            </div>
         </div>
     );
 }

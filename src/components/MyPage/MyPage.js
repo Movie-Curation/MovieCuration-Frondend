@@ -24,7 +24,7 @@ const MyPage = () => {
             } else {
                 try {
                     const response = await axios.get("api/accounts/profile/", {
-                        withCredentials: true, // 쿠키 인증이 필요한 경우 추가, api 엔드포인트는 api/profile/mypage
+                        withCredentials: true, // 쿠키 인증이 필요한 경우 추가
                     });
                     setUserData(response.data);
                 } catch (error) {
@@ -38,7 +38,7 @@ const MyPage = () => {
         const fetchFavoriteMovies = async () => {
             try {
                 const response = await axios.get("api/accounts/favorites", {
-                    withCredentials: true, // 쿠키 인증이 필요한 경우 추가 API 엔드포인트는 api/favorites
+                    withCredentials: true, // 쿠키 인증이 필요한 경우 추가
                 });
                 setFavoriteMovies(response.data);
             } catch (error) {

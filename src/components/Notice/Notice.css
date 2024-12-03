@@ -1,0 +1,47 @@
+.recent-movies-notice {
+    position: fixed; /* 화면에 고정 */
+    top: 50%; /* 화면의 세로 중앙 */
+    left: 50%; /* 화면의 가로 중앙 */
+    transform: translate(-50%, -50%); /* 요소를 정확히 중앙에 위치시킴 */
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+    z-index: 1000; /* Navbar보다 앞에 위치하게끔 설정 */
+}
+
+.recent-movies-notice h2 {
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.recent-movies-notice ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.recent-movies-notice li {
+  background-color: #fff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.recent-movies-notice li strong {
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.recent-movies-notice li br {
+  margin: 5px 0;
+}
+
+.recent-movies-notice p {
+  text-align: center;
+  color: #888;
+}

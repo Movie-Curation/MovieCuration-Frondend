@@ -9,12 +9,13 @@ import MyPage from './components/MyPage/MyPage';
 import ProfileUpdate from './components/MyPage/ProfileUpdate';
 import UserProfile from './components/UserProfile/UserProfile';
 import MovieDetail from './routes/Movie/MovieDetail';
-import SearchResult from './routes/Search/SearchResult';
+import SearchResultPage from './routes/Search/SearchResultPage';
 import ScrollToTop from './components/ScrollToTop';
 import Followers from './components/Follow/Followers';
 import Following from './components/Follow/Following';
 import ChatApp from './routes/AIChat/ChatApp';
 import CustomerSupport from './components/CustomerSupport/CustomerSupport';
+import RecentMoviesNotice from './components/Notice/Notice';
 import './App.css';
 
 function App() {
@@ -36,10 +37,11 @@ function App() {
           <Route path="/customer-support" element={<CustomerSupport />} />
           <Route path="/followers" element={<Followers />} />
           <Route path="/following" element={<Following />} />
-          <Route path="/search/:query" element={<SearchResult />} />
-          <Route path="/movie/:movie_id" element={<MovieDetail />} />
+          <Route path="/search" element={<SearchResultPage />} />
+          <Route path="/movies/:movieCd" element={<MovieDetail />} />
           <Route path="/genre/:genreId" element={<GenreMovies />} />
           <Route path="/chat" element={<ChatApp isLoggedIn={isLoggedIn} />} />
+          <Route path="/notice" element={<RecentMoviesNotice />} />
         </Routes>
       </div>
     </div>

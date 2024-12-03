@@ -138,6 +138,11 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
         navigate("/chat");
     };
 
+    // 공지사항 페이지로 이동
+    const handleNoticeClick = () => {
+        navigate("/notice");
+    };
+
     // 고객지원 페이지로 이동
     const handleCustomerSupportClick = () => {
         navigate("customer-support");
@@ -159,6 +164,7 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
                         <button className="signup-btn" onClick={handleSignUpClick}>회원가입</button>
                     </>
                 )}
+                <button className="notice-btn" onClick={handleNoticeClick}>공지사항</button>
                 <button className="customer-service-btn" onClick={handleCustomerSupportClick}>고객지원</button>
             </div>
             <div className="navbar__bottom">

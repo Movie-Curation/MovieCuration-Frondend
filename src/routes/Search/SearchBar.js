@@ -1,13 +1,15 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./SearchBar.css";
 
 function SearchBar({ onSearch }) {
     const [query, setQuery] = useState("");
+    const navigate = useNavigate();
 
-    const handleSearch = () => {
-        if (onSearch) {
-            onSearch(query);
-        }
+    const handleSearch = async () => {
+        if (!query.trim()) return;
+
+        navigate(`/search?query=${query}`);
     };
     
     // 엔터 키 누르면 검색
