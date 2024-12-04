@@ -29,12 +29,16 @@
 
 .profile-info {
     flex: 1;
+    overflow: visible;
 }
 
 .nickname {
     font-size: 1.5rem;
     font-weight: bold;
     margin: 0;
+    white-space: nowrap; /* 텍스트를 한 줄로 유지 */
+    overflow: visible; /* 오버플로우 허용 */
+    text-overflow: clip; /* 텍스트가 잘리지 않도록 설정 */
 }
 
 .email {

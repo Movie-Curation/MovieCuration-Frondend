@@ -3,14 +3,31 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { FaGear } from "react-icons/fa6";
 import './MyPage.css';
+// import mockMyPageData from './mockMyPageData.json';
+
 
 const MyPage = () => {
-    const [userData, setUserData] = useState(null);
+    const [userData, setUserData] = useState(
+        { nickname: "",
+        email: "",
+        userid: "",
+        gender: "",
+        genres: [],
+        name: "",
+        reviews: [] });
     const [favoriteMovies, setFavoriteMovies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showAllFavorites, setShowAllFavorites] = useState(false);
     const [showAllReviews, setShowAllReviews] = useState(false);
+
+    // useEffect(() => {
+    //     if (process.env.NODE_ENV === "development") {
+    //         setUserData(mockMyPageData);
+    //         setFavoriteMovies(mockMyPageData.favoriteMovies || []);
+    //         setLoading(false);
+    //     }
+    // }, []);
 
     useEffect (() => {
         // 백엔드에서 사용자 데이터 가져오기
@@ -28,9 +45,11 @@ const MyPage = () => {
                     },
                     withCredentials: true, // 쿠키 인증이 필요한 경우 추가
                 });
-                setUserData(response.data);
+
+                console.log("User Data:", response.data);
+                setUserData(response.data.data);
             } catch (error) {
-                    setError(error.response?.data?.message || "Failed to fetch user data"); // 에러 메시지 저장
+                    setError(error.response?.data?.message || "유저 데이터를 불러오지 못했습니다."); // 에러 메시지 저장
             } finally {
                     setLoading(false);
             }
@@ -50,7 +69,7 @@ const MyPage = () => {
                     },
                     withCredentials: true, // 쿠키 인증이 필요한 경우 추가
                 });
-                setFavoriteMovies(response.data);
+                setFavoriteMovies(response.data || []);
             } catch (error) {
                 console.error("좋아하는 영화를 불러오는 데 실패했습니다: ", error);
             }
@@ -161,18 +180,18 @@ const MyPage = () => {
                 </div>
 
                 {/* "더 보기" 버튼 표시 */}
-                {favoriteMovies.length > 3 && !showAllFavorites && (
+                {/* {favoriteMovies.length > 3 && !showAllFavorites && (
                     <button onClick={() => setShowAllFavorites(true)} className="show-more-button">
                         더 보기
                     </button>
-                )}
+                )} */}
 
                 {/* "접기" 버튼 표시 */}
-                {showAllFavorites && (
+                {/* {showAllFavorites && (
                     <button onClick={() => setShowAllFavorites(false)} className="show-more-button">
                         접기
                     </button>
-                )}
+                )} */}
             </div>
 
             {/* 내가 쓴 리뷰 섹션 */}
@@ -217,18 +236,18 @@ const MyPage = () => {
                 </div>
 
                 {/* "더 보기" 버튼 표시 */}
-                {userData?.reviews.length > 3 && !showAllReviews && (
+                {/* {userData?.reviews.length > 3 && !showAllReviews && (
                     <button onClick={() => setShowAllReviews(true)} className="show-more-button">
                         더 보기
                     </button>
-                )}
+                )} */}
 
                 {/* "접기" 버튼 표시 */}
-                {showAllReviews && (
+                {/* {showAllReviews && (
                     <button onClick={() => setShowAllReviews(false)} className="show-more-button">
                         접기
                     </button>
-                )}
+                )} */}
             </div>
         </div>        
     );

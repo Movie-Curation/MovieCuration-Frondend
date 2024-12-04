@@ -28,7 +28,7 @@ const UserProfile = () => {
                     },
                     withCredentials: true,
                 });
-                setUserData(response.data);
+                setUserData(response.data.data);
             } catch (error) {
                 setError(error.response?.data?.message || "유저 데이터를 가져오지 못했습니다.");
             } finally {

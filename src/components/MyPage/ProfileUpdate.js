@@ -10,7 +10,8 @@ const ProfileUpdate = () => {
         confirmPassword: "",
         name: "",
         gender: "",
-        nickname: ""
+        nickname: "",
+        profileImage: null
     });
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -57,9 +58,23 @@ const ProfileUpdate = () => {
             return;
         }
 
+        const data = new FormData();
+        for (const key in formData) {
+            if (formData[key]) {
+                data.append(key, formData[key]);
+            }
+        }
+
         try {
-            const response = await axios.put("http://localhost:8000/api/accounts/profile/update/", formData); 
-            // API 엔드포인트는 api/profile/update
+            const response = await axios.put(
+                "http://localhost:8000/api/accounts/profile/update/",
+                data,
+                {
+                    headers: {
+                        "Content-Type": "multypart/form-data",
+                    },
+                }); 
+            
 
             if (response.status === 200) {
                 setSuccessMessage("프로필 정보가 성공적으로 업데이트되었습니다.");
@@ -103,6 +118,15 @@ const ProfileUpdate = () => {
                 <label>닉네임:</label>
                 <input type="text" name="nickname" value={formData.nickname} onChange={handleChange} required />
 
+                <label>프로필 이미지:</label>
+                <input
+                    type="file"
+                    name="profileImage"
+                    onChange={(e) => setFormData({
+                        ...formData,
+                        profileImage: e.target.files[0]
+                    })}
+                />
                 <button type="submit">프로필 업데이트</button>
             </form>
 
