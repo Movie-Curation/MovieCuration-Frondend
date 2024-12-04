@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-// import MoviePoster from "../MoviePoster";
 import { FaGear } from "react-icons/fa6";
 import './MyPage.css';
 
@@ -76,6 +75,10 @@ const MyPage = () => {
 
     if (error) {
         return <div className="mypage-container">에러 발생: {error}</div>;
+    }
+
+    if (!userData) {
+        return <div className="mypage-container">사용자 데이터가 없습니다.</div>;
     }
 
     return (

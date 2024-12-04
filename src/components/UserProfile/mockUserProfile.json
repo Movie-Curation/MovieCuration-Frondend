@@ -1,35 +1,10 @@
 {
-    "user_id": 1,
-    "nickname": "TestUser",
-    "profilePicture": "https://via.placeholder.com/150",
-    "followers": 120,
-    "following": 80,
-    "totalLikes": 500,
-    "isFollwing": false,
-    "reviews": [
-        {
-            "movie_id": 101,
-            "text": "Amazing movie! The visuals were stunning.",
-            "created_at": "2024-11-20T15:30:00Z",
-            "rating": 4.5
-        },
-        {
-            "movie_id": 102,
-            "text": "Not bad, but the story was a bit predictable.",
-            "created_at": "2024-11-19T12:45:00Z",
-            "rating": 3.0
-        },
-        {
-            "movie_id": 103,
-            "text": "Loved the character development and soundtrack.",
-            "created_at": "2024-11-18T18:00:00Z",
-            "rating": 5.0
-        },
-        {
-            "movie_id": 103,
-            "text": "Loved the character development and soundtrack.",
-            "created_at": "2024-11-18T18:00:00Z",
-            "rating": 5.0
-        }
-    ]
-}
+    "user_id": 123,
+    "nickname": "MovieLover",
+    "profilePicture": "https://placehold.co/100x100?text=Profile",
+    "followers": 250,
+    "following": 180,
+    "isFollowing": true,
+    "favorites": [],
+    "reviews": []
+  }
