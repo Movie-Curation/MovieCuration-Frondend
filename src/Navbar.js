@@ -113,6 +113,9 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
 
     // 로그아웃 후 메인화면으로 이동
     const handleLogOut = () => {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+
         setIsLoggedIn(false);
         navigate("/");
     };

@@ -8,6 +8,7 @@ const GenreMovies = () => {
     const {genreId} = useParams();
     const [movies, setMovies] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const genreMap = {
         28: "액션",
@@ -32,16 +33,21 @@ const GenreMovies = () => {
     };
 
     useEffect(() => {
-        const api_key = process.env.REACT_APP_TMDB_API_KEY;
         const fetchMoviesByGenre = async () => {
             setLoading(true);
+            setError(null);
+
+            const genreName = genreMap[genreId];
+            if (!genreName) {
+                setError("잘못된 장르 ID입니다");
+                setLoading(false);
+                return;
+            }
             try {
-                const response = await axios.get(
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${api_key}&with_genres=${genreId}&language=ko-KR`
-                );
+                const response = await axios.get(`/movie/api/movies/genre/${genreName}/`)
                 setMovies(response.data.results);
-            } catch (error) {
-                console.error("영화를 가져오는 데 실패했습니다.", error);
+            } catch (err) {
+                console.error("영화를 가져오는 데 실패했습니다.", err);
             } finally {
                 setLoading(false);
             }
@@ -58,18 +64,19 @@ const GenreMovies = () => {
 
     return (
         <div className="genre-movies">
-            <h2>{genreMap[genreId] || "알 수 없는"} 장르의 인기 영화</h2>
+            <h2>{genreMap[genreId] || "알 수 없는"} 장르의 영화 목록</h2>
                 <div className="result-cards">
                     {movies.map((movie) => (
-                        <Link to={`/movie/${movie.id}`} key={movie.id} className="result-card">
-                            <div className="poster">
-                                <img
-                                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                                    alt={movie.title}
-                                />
-                            </div>
-                            <div className="title">{movie.title}</div>
-                            <div className="score">⭐: {movie.vote_average ? movie.vote_average.toFixed(2) : 'N/A'}</div>
+                        <Link to={`/movies/${movie.kobis.movieCd}`} key={movie.kobis.movieCd} className="result-card">
+                        <div className="poster">
+                            <img
+                                src={movie.tmdb.poster_url || "https://placehold.co/200x285?text=No+Poster"} // 포스터 URL
+                                alt={movie.kobis.movieNm}
+                            />
+                        </div>
+                        <div className="title">{movie.kobis.movieNm}</div>
+                        <div className="year">{movie.kobis.prdtYear}</div>
+                        <div className="nation">{movie.kobis.nationNm}</div>
                         </Link>
                     ))}
                 </div>

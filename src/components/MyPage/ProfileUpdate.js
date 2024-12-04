@@ -19,7 +19,7 @@ const ProfileUpdate = () => {
         // 백엔드에서 현재 유저 프로필을 받아오는 기능
         const fetchProfileData = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/api/profile/");
+                const response = await axios.get("http://localhost:8000/api/accounts/profile/");
                 setFormData({
                     id: response.data.id,
                     email: response.data.email,
@@ -58,7 +58,7 @@ const ProfileUpdate = () => {
         }
 
         try {
-            const response = await axios.put("http://localhost:8000/api/profile/update", formData); 
+            const response = await axios.put("http://localhost:8000/api/accounts/profile/update/", formData); 
             // API 엔드포인트는 api/profile/update
 
             if (response.status === 200) {

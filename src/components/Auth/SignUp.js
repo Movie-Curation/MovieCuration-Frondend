@@ -33,7 +33,7 @@ const SignUp = () => {
         name: "",
         gender: "",
         nickname: "",
-        preference: []
+        genres: []
     });
 
     const [successMessage, setSuccessMessage] = useState("");
@@ -53,12 +53,12 @@ const SignUp = () => {
         if (checked) {
             setFormData((prevState) => ({
                 ...prevState,
-                preference: [...prevState.preference, parseInt(value)]
+                genres: [...prevState.genres, parseInt(value)]
             }));
         } else {
             setFormData((prevState) => ({
                 ...prevState,
-                preference: prevState.preference.filter((genreId) => genreId !== parseInt(value))
+                genres: prevState.genres.filter((genreId) => genreId !== parseInt(value))
             }));
         }
     }
@@ -93,7 +93,7 @@ const SignUp = () => {
                     name: "",
                     gender: "",
                     nickname: "",
-                    preference: []
+                    genres: []
                 }); // 폼 초기화
             } else {
                 setErrorMessage(response.data.message || "회원가입에 실패했습니다.");
@@ -135,14 +135,14 @@ const SignUp = () => {
                 <input type="text" name="nickname" value={formData.nickname} onChange={handleChange} required />
 
                 <label>좋아하는 영화 장르:</label>
-                <div className="genre-checkboxes">
+                <div className="genres">
                     {genres.map((genre) => (
                         <div key={genre.id}>
                             <label>
                                 <input
                                     type="checkbox"
                                     value={genre.id}
-                                    checked={formData.preference.includes(genre.id)}
+                                    checked={formData.genres.includes(genre.id)}
                                     onChange={handleGenreChange}
                                 />
                                 {genre.name}

@@ -26,19 +26,67 @@ function MovieDetail() {
     useEffect(() => {
         const fetchLoggedInUser = async () => {
             try {
-                const response =  await axios.get("/api/auth/check-login");
-                setIsLoggedIn(response.data.is_logged_in);
-                setLoggedInUser(response.data.user);
-                setIsAdmin(response.data.is_admin);
+                const token = localStorage.getItem("access_token");
+                if (!token) {
+                    console.error("토큰이 없습니다.");
+                    setIsLoggedIn(false);
+                    setLoggedInUser(null);
+                    return;
+                }
+    
+                // 로그인 상태 확인 요청
+                await checkLoginStatus(token);
             } catch (error) {
-                console.error("로그인 상태 확인 중 오류 발생:", error);
-                setIsLoggedIn(false);
-                setLoggedInUser(null);
+                if (error.response?.status === 401 && error.response.data.code === "token_not_valid") {
+                    try {
+                        // 토큰 갱신 시도
+                        const newAccessToken = await refreshAccessToken();
+                        // 갱신된 토큰으로 다시 로그인 상태 확인
+                        await checkLoginStatus(newAccessToken);
+                    } catch (refreshError) {
+                        console.error("토큰 갱신 실패:", refreshError);
+                        setIsLoggedIn(false);
+                        setLoggedInUser(null);
+                        localStorage.removeItem("access_token");
+                        localStorage.removeItem("refresh_token");
+                    }
+                } else {
+                    console.error("로그인 상태 확인 중 오류 발생:", error.response?.data || error.message);
+                    setIsLoggedIn(false);
+                    setLoggedInUser(null);
+                }
             }
         };
-
+    
+        const checkLoginStatus = async (token) => {
+            const response = await axios.get("/api/accounts/auth/check-login/", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setIsLoggedIn(response.data.is_logged_in);
+            setLoggedInUser(response.data.user);
+            setIsAdmin(response.data.is_admin);
+        };
+    
+        const refreshAccessToken = async () => {
+            const refreshToken = localStorage.getItem("refresh_token");
+            if (!refreshToken) {
+                throw new Error("리프레시 토큰이 없습니다.");
+            }
+    
+            const response = await axios.post("/api/token/refresh/", {
+                refresh: refreshToken,
+            });
+            const newAccessToken = response.data.access;
+            localStorage.setItem("access_token", newAccessToken);
+            return newAccessToken;
+        };
+    
         fetchLoggedInUser();
     }, []);
+    
+    
 
     // 영화 정보 가져오기
     useEffect(() => {
@@ -91,11 +139,17 @@ function MovieDetail() {
         if (!review.trim() || score.filter(Boolean).length === 0) return; // 리뷰와 별점이 모두 입력되어야 제출
 
         try {
-            const response = await axios.post("api/reviews", {
+            const token = localStorage.getItem("access_token");
+            const response = await axios.post("/api/accounts/reviews/", {
                 movieCd,
                 comment: review,
                 rating: score.filter(Boolean).length,
                 // created_at: new Date().toLocaleString()
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             });
             setReviews((prev) => [...prev, response.data]);
             setReview("");
@@ -114,7 +168,7 @@ function MovieDetail() {
         setScore(updatedScore);
     };
 
-    // 영화 좋아요 이벤트 핸들러
+    // 영화 즐겨찾기 이벤트 핸들러
     const [isFavorite, setIsFavorite] = useState(false);
 
     const handleFavoriteClick = async () => {
@@ -126,61 +180,69 @@ function MovieDetail() {
             alert("로그인이 필요합니다.");
             return;
         }
-    
+   
         try {
-            const response = await axios.post("/api/accounts/favorites", { movieCd: movie.kobis.movieCd });
-            if (response.status === 200) {
+            // 토큰 가져오기
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+    
+            // 요청에 토큰 포함
+            const headers = {
+                Authorization: `Bearer ${token}`, 
+            };
+    
+            const response =
+            console.log(movie.kobis.movieCd);
+                isFavorite
+                ? await axios.delete(`/api/accounts/favorites/${movie.kobis.movieCd}/`, { headers })
+                : await axios.post(
+                    `/api/accounts/favorites/`,
+                    { movieCd: movie.kobis.movieCd },
+                    { headers }
+                );
+    
+            if (response.status === 200 || response.status === 201) {
                 setIsFavorite((prev) => !prev); // 상태 반전
             } else {
-                console.error("좋아요 응답 에러:", response.status);
+                console.error("즐겨찾기 처리 실패:", response.status);
             }
         } catch (error) {
-            console.error("좋아요 요청 중 오류:", error);
+            console.error("즐겨찾기 요청 중 오류:", error.response ? error.response.data : error.message);
         }
     };
 
     // 리뷰 좋아요/싫어요 이벤트 핸들러
-    const handleLike = async(review_id) => {
+    const handleReaction = async (review_id, reaction) => {
+        if (!isLoggedIn) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
         try {
-            // 백엔드에 리뷰 좋아요 클릭 이벤트 전송
-            await axios.post(`/api/accounts/reviews/${review_id}/reaction/`, { username: loggedInUser.username });
+            const token = localStorage.getItem("access_token");
 
-            // 백엔드에서 해당 리뷰의 최신 좋아요 수 받아오기
-            const response = await axios.get(`/api/accounts/reviews/${review_id}/reaction/`);
-            const updatedReview = response.data;
-
-            setReviews((prev) =>
-                prev.map((review) => 
-                    review.id === review_id
-                        ? { ...review, likes: updatedReview.likes }
-                        : review
-                    )
-                );
-            } catch (error) {
-                console.error("Error liking review: ", error);
+            if(!token) {
+                alert("유효한 토큰이 없습니다. 다시 로그인해주세요.");
+                return;
             }
-        };
-        
-    const handleDislike = async (review_id) => {
-        try {
-            // 백엔드에 싫어요 클릭 이벤트 전송
-            await axios.post(`/api/accounts/reviews/${review_id}/reaction/`, { username: loggedInUser.username });
 
-            // 백엔드에서 해당 리뷰의 최신 싫어요 수 받아오기
-            const response = await axios.get(`/api/accounts/reviews/${review_id}/reaction/`);
-            const updatedReview = response.data;
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token},`
+                },
+            };
 
+            await axios.post(`/api/accounts/reviews/${review_id}/reaction/`, { reaction }, config);
+            const updatedReview = await axios.get(`/api/accounts/reviews/${review_id}/reaction/`, config);
             setReviews((prev) =>
-                prev.map((review) =>
-                    review.id === review_id
-                        ? { ...review, dislikes: updatedReview.dislikes }
-                        : review
-                    )
-                );
-            } catch (error) {
-                console.error("Error disliking review: ", error);
-            }
-        };
+                prev.map((review) => (review.id === review_id ? { ...review, ...updatedReview.data } : review))
+            );
+        } catch (error) {
+            console.error("리뷰 반응 처리 실패:", error);
+        }
+    };
     
     // 불량 리뷰 신고
     const handleReport = async (review_id) => {
@@ -202,14 +264,29 @@ function MovieDetail() {
         const description = prompt("신고 사유에 대한 상세 설명을 입력해주세요. (선택 사항)");
 
         try {
-            // 백엔드에 신고 데이터 전송
-            const response = await axios.post(`/api/reviews/${review_id}/report/`, { reason, description, }); // 백엔드에 리뷰 신고 전송
+            const token = localStorage.getItem("access_token");
 
-            if (response.status === 200 && response.status < 300) {
-                alert("리뷰 신고가 접수되었습니다.");
-            } else {
-                alert("신고 처리에 실패했습니다.");
+            if (!token) {
+                alert("유효한 토큰이 없습니다. 다시 로그인해주세요.");
+                return;
             }
+
+            const config = {
+                headers : {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+        
+
+        
+        // 백엔드에 신고 데이터 전송
+        const response = await axios.post(`/api/reviews/${review_id}/report/`, { reason, description }, config); // 백엔드에 리뷰 신고 전송
+
+        if (response.status === 200 && response.status < 300) {
+            alert("리뷰 신고가 접수되었습니다.");
+        } else {
+            alert("신고 처리에 실패했습니다.");
+        }
         } catch (error) {
             console.error("신고 요청 오류: ", error);
             alert("신고 요청에 실패했습니다.")
@@ -447,8 +524,12 @@ function MovieDetail() {
                                 <div className="review-actions">
                                     {isLoggedIn ? (
                                         <>
-                                            <button onClick={() => handleLike(review.id)}><FaRegThumbsUp />{review.likes}</button>
-                                            <button onClick={() => handleDislike(review.id)}><FaRegThumbsDown />{review.dislikes}</button>
+                                            <button onClick={() => handleReaction(review.id, "like")}>
+                                                <FaRegThumbsUp /> {review.likes}
+                                            </button>
+                                            <button onClick={() => handleReaction(review.id, "dislike")}>
+                                                <FaRegThumbsDown /> {review.dislikes}
+                                            </button>
                                         </>
                                     ) : (
                                         <>
@@ -459,9 +540,9 @@ function MovieDetail() {
                                     <button onClick={() => handleReport(review.id)}>
                                         <PiSiren size={20} />
                                     </button>
-                                    {(isAdmin || (loggedInUser && review.user === loggedInUser.username)) && (  // 운영자의 리뷰 삭제 기능
+                                    {(isAdmin || (loggedInUser && review.user === loggedInUser.userid)) && (  // 운영자의 리뷰 삭제 기능
                                         <>
-                                            {review.user === loggedInUser.username && (  // 리뷰 작성자만 리뷰 수정/삭제하는 기능
+                                            {review.user === loggedInUser.userid && (  // 리뷰 작성자만 리뷰 수정/삭제하는 기능
                                                 <button onClick={() => handleEditStart(review)}>수정</button>
                                             )}
                                             <button onClick={() => handleDelete(review.id)}>삭제</button>

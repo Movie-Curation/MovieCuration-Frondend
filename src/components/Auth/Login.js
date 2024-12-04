@@ -1,16 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Login.css";
 
 const LogIn = ({ setIsLoggedIn }) => {
     const [formData, setFormData] = useState({
-        id: "",
+        userid: "",
         password: ""
     });
 
-    const [error, setError] = useState("") // 에러 메시지 상태 관리
+    const [error, setError] = useState(""); // 에러 메시지 상태 관리
     const navigate = useNavigate();
+
+    // 로컬 스토리지의 토큰으로 로그인 상태 확인
+    useEffect(() => {
+        const accessToken = localStorage.getItem("access_token");
+        if (accessToken) {
+            setIsLoggedIn(true);
+            navigate("/"); // 이미 로그인된 상태라면 홈으로 이동
+        }
+    }, [setIsLoggedIn, navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -25,14 +34,19 @@ const LogIn = ({ setIsLoggedIn }) => {
         setError(""); // 기존 에러 메시지 초기화
 
         try {
-            const response = await axios.post("http://localhost:8000/api/login/", {
-                id: formData.id,
+            const response = await axios.post("http://localhost:8000/api/token/", {
+                userid: formData.userid,
                 password: formData.password
-            }); // 여기서 로그인 API 엔드포인트는 'api/login/' 필요하면 나중에 수정
+            });
 
+            console.log(response.data.access);
             // 로그인 성공 처리
-            if (response.status === 200 && response.data.success) {
+            if (response.status === 200 && response.data.access) {
                 console.log("로그인 성공: ", response.data);
+
+                localStorage.setItem("access_token", response.data.access);
+                localStorage.setItem("refresh_token", response.data.refresh);
+                
                 setIsLoggedIn(true);
                 navigate("/");
             } else {
@@ -51,10 +65,9 @@ const LogIn = ({ setIsLoggedIn }) => {
             <h2>로그인</h2>
             <form onSubmit={handleSubmit}>
                 <label>ID:</label>
-                <input type="text" name="id" value={formData.id} onChange={handleChange} required />
+                <input type="text" name="userid" value={formData.userid} onChange={handleChange} required />
                 <label>Password:</label>
                 <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-
                 <button type="submit">로그인</button>
             </form>
             {error && <p className="error">{error}</p>} {/*에러 메시지 표시 */}

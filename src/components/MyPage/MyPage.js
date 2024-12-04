@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import MoviePoster from "../MoviePoster";
+// import MoviePoster from "../MoviePoster";
 import { FaGear } from "react-icons/fa6";
-import mockUserData from './mockUserData.json'
 import './MyPage.css';
 
 const MyPage = () => {
@@ -17,27 +16,39 @@ const MyPage = () => {
     useEffect (() => {
         // 백엔드에서 사용자 데이터 가져오기
         const fetchUserData = async () => {
-            if (process.env.NODE_ENV === "development") {
-                setUserData(mockUserData);
-                setFavoriteMovies(mockUserData.favorites);
-                setLoading(false); // 개발자 모드에서 Mockup Data 사용
-            } else {
-                try {
-                    const response = await axios.get("api/accounts/profile/", {
-                        withCredentials: true, // 쿠키 인증이 필요한 경우 추가
-                    });
-                    setUserData(response.data);
-                } catch (error) {
-                    setError(error.response?.data?.message || "Failed to fetch user data"); // 에러 메시지 저장
-                } finally {
-                    setLoading(false);
+            try {
+                const token = localStorage.getItem("access_token");
+                if (!token) {
+                    setError("토큰이 없습니다. 로그인해주세요.")
+                    return;
                 }
-            }
-        };
 
+                const response = await axios.get("/api/accounts/profile/", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    withCredentials: true, // 쿠키 인증이 필요한 경우 추가
+                });
+                setUserData(response.data);
+            } catch (error) {
+                    setError(error.response?.data?.message || "Failed to fetch user data"); // 에러 메시지 저장
+            } finally {
+                    setLoading(false);
+            }
+            }
+        
         const fetchFavoriteMovies = async () => {
             try {
-                const response = await axios.get("api/accounts/favorites", {
+                const token = localStorage.getItem("access_token");
+                if (!token) {
+                    console.error("토큰이 없습니다. 로그인해주세요.");
+                    return;
+                }
+
+                const response = await axios.get("/api/accounts/favorites/", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                     withCredentials: true, // 쿠키 인증이 필요한 경우 추가
                 });
                 setFavoriteMovies(response.data);
@@ -56,8 +67,8 @@ const MyPage = () => {
         navigate("/profile-update");
     };
 
-    const reviewsToShow = userData?.reviews ? (showAllReviews ? userData.reviews : userData.reviews.slice(0, 3)) : [];
-    const favoriteMoviesToShow = favoriteMovies ? (showAllFavorites ? favoriteMovies : favoriteMovies.slice(0, 3)) : [];
+    const reviewsToShow = userData?.reviews && userData.reviews.length > 0 ? (showAllReviews ? userData.reviews : userData.reviews.slice(0, 3)) : [];
+    const favoriteMoviesToShow = favoriteMovies?.length > 0 ? (showAllFavorites ? favoriteMovies : favoriteMovies.slice(0, 3)) : [];
 
     if (loading) {
         return <div className="mypage-container">로딩 중...</div>;
@@ -117,13 +128,31 @@ const MyPage = () => {
             <div className="favorite-movies-section">
                 <h3>내가 좋아한 영화</h3>
                 <div className="favorite-movies-list">
-                    {favoriteMovies.length === 0 ? (
+                {favoriteMovies.length === 0 ? (
                         <p>좋아한 영화가 없습니다.</p>
                     ) : (
                         favoriteMoviesToShow.map((movie) => (
-                            <Link to={`/movie/${movie.id}`} key={movie.id} className="favorite-movie-card">
-                                <MoviePoster title={movie.title} posterpath={movie.posterpath} />
-                            </Link>
+                            <div
+                                key={movie.kobis?.movieCd}
+                                className="favorite-movie-card"
+                                onClick={() => navigate(`/movie/api/movies/${movie.kobis?.movieCd}`)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                {movie.tmdb?.poster_url ? (
+                                    <img
+                                        className="favorite-movie-poster"
+                                        src={movie.tmdb.poster_url}
+                                        alt={movie.kobis?.movieNm}
+                                    />
+                                ) : (
+                                    <div className="favorite-movie-no-poster">
+                                        <img src="https://placehold.co/200x285?text=No+Poster" alt="No Poster Available" />
+                                    </div>
+                                )}
+                                <h3>{movie.kobis?.movieNm || "Unknown Title"}</h3>
+                                <p>{movie.kobis?.prdtYear || "N/A"}</p>
+                                <p>{movie.kobis?.nationNm || "N/A"}</p>
+                            </div>
                         ))
                     )}
                 </div>
@@ -147,16 +176,39 @@ const MyPage = () => {
             <div className="review-list-section">
                 <h3>내가 쓴 리뷰 리스트</h3>
                 <div className="review-list">
-                    {userData && userData.reviews.length === 0 ? (
+                    {userData?.reviews?.length === 0 ? (
                         <p>리뷰가 없습니다.</p>
                     ) : (
-                        reviewsToShow?.map((review) => (
-                            <Link to={`/movie/${review.movie_id}`} key={review.movie_id} className="review-card">
-                                <MoviePoster title={review.title} posterpath={review.posterpath} />
-                                <div className="review-text">
-                                    <p>{review.text}</p>
+                        reviewsToShow.map((review) => (
+                            <div
+                                key={review.id}
+                                className="review-card"
+                                onClick={() => navigate(`/movie/api/movies/${review.movie.kobis?.movieCd}`)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <div className="review-card-content">
+                                    {/* 영화 포스터 */}
+                                    {review.movie.tmdb?.poster_url ? (
+                                        <img
+                                            className="review-movie-poster"
+                                            src={review.movie.tmdb.poster_url}
+                                            alt={review.movie.kobis?.movieNm || "Poster"}
+                                        />
+                                    ) : (
+                                        <div className="review-no-poster">
+                                            <img src="https://placehold.co/200x285?text=No+Poster" alt="No Poster Available" />
+                                        </div>
+                                    )}
+
+                                    {/* 영화 정보 및 리뷰 내용 */}
+                                    <div className="review-text-content">
+                                        <h4>{review.movie.kobis?.movieNm || "Unknown Title"}</h4>
+                                        <p>{review.movie.kobis?.prdtYear || "N/A"}</p>
+                                        <p>{review.movie.kobis?.nationNm || "N/A"}</p>
+                                        <p className="review-text">"{review.text}"</p>
+                                    </div>
                                 </div>
-                            </Link>
+                            </div>
                         ))
                     )}
                 </div>
