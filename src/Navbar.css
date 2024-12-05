@@ -3,15 +3,16 @@
   position: fixed;
   top: 0;
   width: 100%;
-  height: 80px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: auto; /* height를 auto로 설정하여 콘텐츠에 맞게 조정 */
+  background-color: var(--header-footer-bg); /* App.css의 헤더/푸터 색상 */
   z-index: 1000;
-  padding: 10px;
+  padding: 10px 20px;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* 상하 구조를 유지하기 위한 설정 */
   align-items: center;
-  transition: transform 0.3s ease-in-out;
+  justify-content: center;
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* 전체 경계선 추가 */
 }
 
 .navbar__top {
@@ -35,6 +36,20 @@
   cursor: pointer;
 }
 
+.navbar a {
+  color: var(--text-color); /* 기본 텍스트 색상 */
+  text-decoration: none;
+  font-size: 18px;
+  padding: 8px 12px;
+  border-radius: var(--border-radius);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar a:hover {
+  background-color: var(--primary-color); /* 강조 색상 */
+  color: #ffffff;
+}
+
 .login-btn, .signup-btn, .ai-btn, .customer-service-btn, .my-page-btn, .logout-btn, .notice-btn {
   padding: 8px 12px;
   margin-left: 10px;
@@ -43,6 +58,7 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
 }
 
 .login-btn:hover, .signup-btn:hover, .ai-btn:hover {
@@ -51,7 +67,17 @@
 
 .category {
   font-size: 18px;
+  font-weight: bold;
+  color: var(--text-color); /* 기본 텍스트 색상 */
   cursor: pointer;
+  padding: 8px 12px;
+  border-radius: var(--border-radius);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.category:hover {
+  background-color: var(--primary-color); /* 강조 색상 */
+  color: #ffffff; /* 호버 시 텍스트 색상 변경 */
 }
 
 .navbar.hide {

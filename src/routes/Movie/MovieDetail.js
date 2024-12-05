@@ -59,7 +59,7 @@ function MovieDetail() {
         };
     
         const checkLoginStatus = async (token) => {
-            const response = await axios.get("/api/accounts/auth/check-login/", {
+            const response = await axios.get("http://localhost:8000/api/accounts/auth/check-login/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -75,7 +75,7 @@ function MovieDetail() {
                 throw new Error("리프레시 토큰이 없습니다.");
             }
     
-            const response = await axios.post("/api/token/refresh/", {
+            const response = await axios.post("http://localhost:8000/api/token/refresh/", {
                 refresh: refreshToken,
             });
             const newAccessToken = response.data.access;
@@ -98,11 +98,17 @@ function MovieDetail() {
                 setMovie(movieData);
                 setIsLoading(false);
                 setDirector(
-                    Array.isArray(movieData.kobis?.director)
+                    Array.isArray(movieData.kobis?.director) && movieData.kobis.director.length > 0
                     ? movieData.kobis.director
-                    : [movieData.kobis?.director] // director가 문자열이라면 배열로 변환
+                    : []// director가 문자열이라면 배열로 변환
                 );
-                setCast(movieData.kobis?.actors?.length ? movieData.kobis.actors : movieData.tmdb?.cast || []);
+                setCast(
+                    Array.isArray(movieData.kobis?.actors) && movieData.kobis.actors.length > 0
+                    ? movieData.kobis.actors.map((actor) => ({ peopleNm: actor.peopleNm || "Unknown" }))
+                    : Array.isArray(movieData.tmdb?.cast) && movieData.tmdb.cast.length > 0
+                        ? movieData.tmdb.cast.map((actor) => ({ peopleNm: actor.name || "Unknown" }))
+                        : []
+                );
                 // setStaffs(movieData.kobis?.staffs_details?.length ? movieData.kobis.staffs_details : movieData.tmdb?.crew || []);
                 // setCompanies(movieData.kobis?.companies?.length ? movieData.kobis.companies : movieData.tmdb?.production_companies || []);
             } catch (error) {
@@ -129,10 +135,26 @@ function MovieDetail() {
             }
         };
 
+        // const checkFavoriteStatus = async () => {
+        //     try {
+        //         const token = localStorage.getItem("access_token");
+        //         const response = await axios.get(`http://localhost:8000/api/accounts/favorites/${movieCd}/`, {
+        //             headers: { Authorization: `Bearer ${token}` },
+        //         });
+        //         setIsFavorite(!!response.data.favorite);
+        //     } catch (error) {
+        //         console.error("즐겨찾기 상태 확인 실패:", error.response?.data || error.message);
+        //     }
+        // };
+    
+        // if (isLoggedIn && movieCd) {
+        //     checkFavoriteStatus();
+        // }
+
         fetchMovieDetail();
         fetchSimilarMovies();
         fetchReviews();
-    }, [movieCd])
+    }, [isLoggedIn, movieCd])
 
     // 실제 리뷰 작성 데이터
     const handleReviewSubmit = async () => {
@@ -140,8 +162,9 @@ function MovieDetail() {
 
         try {
             const token = localStorage.getItem("access_token");
-            const response = await axios.post("/api/accounts/reviews/", {
-                movieCd,
+            setIsLoggedIn(!!token);
+            const response = await axios.post("http://localhost:8000/api/accounts/reviews/", {
+                movieCd: movieCd,
                 comment: review,
                 rating: score.filter(Boolean).length,
                 // created_at: new Date().toLocaleString()
@@ -172,7 +195,7 @@ function MovieDetail() {
     const [isFavorite, setIsFavorite] = useState(false);
 
     const handleFavoriteClick = async () => {
-        if (!movie || !movie.kobis.movieCd) {
+        if (!movie || !movie.kobis || !movie.kobis.movieCd) {
             console.error("영화 데이터가 유효하지 않습니다.");
             return;
         }
@@ -183,7 +206,7 @@ function MovieDetail() {
    
         try {
             // 토큰 가져오기
-            const token = localStorage.getItem('access_token');
+            const token = localStorage.getItem("access_token");
             if (!token) {
                 alert("로그인이 필요합니다.");
                 return;
@@ -193,14 +216,14 @@ function MovieDetail() {
             const headers = {
                 Authorization: `Bearer ${token}`, 
             };
-    
+
+            const BASE_URL = "http://localhost:8000";
             const response =
-            console.log(movie.kobis.movieCd);
                 isFavorite
-                ? await axios.delete(`/api/accounts/favorites/${movie.kobis.movieCd}/`, { headers })
+                ? await axios.delete(`${BASE_URL}/api/accounts/favorites/${movieCd}/`, { headers })
                 : await axios.post(
-                    `/api/accounts/favorites/`,
-                    { movieCd: movie.kobis.movieCd },
+                    `${BASE_URL}/api/accounts/favorites/`,
+                    { movieCd },
                     { headers }
                 );
     
@@ -234,8 +257,8 @@ function MovieDetail() {
                 },
             };
 
-            await axios.post(`/api/accounts/reviews/${review_id}/reaction/`, { reaction }, config);
-            const updatedReview = await axios.get(`/api/accounts/reviews/${review_id}/reaction/`, config);
+            await axios.post(`http://localhost:8000/api/accounts/reviews/${review_id}/reaction/`, { reaction }, config);
+            const updatedReview = await axios.get(`http://localhost:8000/api/accounts/reviews/${review_id}/reaction/`, config);
             setReviews((prev) =>
                 prev.map((review) => (review.id === review_id ? { ...review, ...updatedReview.data } : review))
             );
@@ -280,7 +303,7 @@ function MovieDetail() {
 
         
         // 백엔드에 신고 데이터 전송
-        const response = await axios.post(`/api/reviews/${review_id}/report/`, { reason, description }, config); // 백엔드에 리뷰 신고 전송
+        const response = await axios.post(`http://localhost:8000/api/reviews/${review_id}/report/`, { reason, description }, config); // 백엔드에 리뷰 신고 전송
 
         if (response.status === 200 && response.status < 300) {
             alert("리뷰 신고가 접수되었습니다.");
@@ -307,7 +330,7 @@ function MovieDetail() {
     
     const handleEditSubmit = async (review_id) => {
         try {
-            await axios.patch(`/api/accounts/reviews/${review_id}`, {
+            await axios.patch(`http://localhost:8000/api/accounts/reviews/${review_id}`, {
                 content: editContent,
                 rating: editRating,
             });
@@ -329,7 +352,7 @@ function MovieDetail() {
     
     const handleDelete = async (review_id) => {
         try {
-            await axios.delete(`/api/accounts/reviews/${review_id}/delete`);
+            await axios.delete(`http://localhost:8000/api/accounts/reviews/${review_id}/delete`);
             setReviews((prev) => prev.filter((review) => review.id !== review_id));
         } catch (error) {
             console.error("Error deleting review: ", error);
@@ -392,7 +415,7 @@ function MovieDetail() {
             <div className="info-section">
                 <h3>감독</h3>
                 <ul>
-                    {Array.isArray(director) && director.length > 0 ? (
+                    {director.length > 0 ? (
                         director.map((dir, index) => (
                             <li key={index}>{dir.peopleNm || dir}</li>
                         ))
@@ -570,7 +593,7 @@ function MovieDetail() {
                         />
                         <div className="movie-info">
                             <h4>{rec.kobis.movieNm}</h4>
-                            {/* <p>{rec.kobis.prdtYear}</p> */}
+                            <p>{rec.kobis.prdtYear}</p>
                         </div>
                     </div>
                     </Link>

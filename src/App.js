@@ -20,16 +20,18 @@ import './App.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 
   return (
   <Router>
-    <div className="app-container">
-    <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-      <div className="routes-container">
+    <div className="app">
+      <header className="app-header">
+        <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setIsSignUpOpen={setIsSignUpOpen} />
+      </header>
+      <main className="app-main">
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<LogIn setIsLoggedIn={setIsLoggedIn} />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/profile-update" element={<ProfileUpdate />} />
@@ -43,7 +45,11 @@ function App() {
           <Route path="/chat" element={<ChatApp isLoggedIn={isLoggedIn} />} />
           <Route path="/notice" element={<RecentMoviesNotice />} />
         </Routes>
-      </div>
+      </main>
+      <footer className="app-footer">
+        <p>&copy; 2024 AI Movie Curator</p>
+      </footer>
+      {isSignUpOpen && <SignUp onClose={() => setIsSignUpOpen(false)} />}
     </div>
   </Router>
   );

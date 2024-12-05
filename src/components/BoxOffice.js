@@ -16,7 +16,6 @@ const BoxOffice = () => {
     const fetchBoxOfficeData = async () => {
       try {
         const response = await axios.get('/movie/api/boxoffice/banner/');
-        console.log(response.data);
         setBoxOfficeData(response.data);
       } catch (err) {
         setError('Failed to load box office data');

@@ -76,7 +76,7 @@ const GenreMovies = () => {
                         </div>
                         <div className="title">{movie.kobis.movieNm}</div>
                         <div className="year">{movie.kobis.prdtYear}</div>
-                        <div className="nation">{movie.kobis.nationNm}</div>
+                        {/* <div className="nation">{movie.kobis.nationNm}</div> */}
                         </Link>
                     ))}
                 </div>

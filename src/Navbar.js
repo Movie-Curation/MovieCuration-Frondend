@@ -5,7 +5,7 @@ import SearchBar from "./routes/Search/SearchBar";
 import GenreDropdown from "./components/MovieGenre/GenreDropdown";
 import "./Navbar.css";
 
-function Navbar({ isLoggedIn, setIsLoggedIn }) {
+function Navbar({ isLoggedIn, setIsLoggedIn, setIsSignUpOpen }) {
     const [query, setQuery] = useState("");
     const [isDropdownOpen, setIsDropDownOpen] = useState(false);
     const [genres, setGenres] = useState([]);
@@ -121,9 +121,9 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
     };
 
     // 회원가입 버튼 클릭하면 회원가입 창으로 이동
-    const handleSignUpClick = () => {
-        navigate("/signup");
-    };
+    // const handleSignUpClick = () => {
+    //     navigate("/signup");
+    // };
 
     // 로그인 후 클릭하면 마이페이지로 이동
     const handleMyPageClick = () => {
@@ -164,7 +164,7 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
                 ) : (
                     <>
                         <button className="login-btn" onClick={handleLoginClick}>로그인</button>
-                        <button className="signup-btn" onClick={handleSignUpClick}>회원가입</button>
+                        <button className="signup-btn" onClick={() => setIsSignUpOpen(true)}>회원가입</button>
                     </>
                 )}
                 <button className="notice-btn" onClick={handleNoticeClick}>공지사항</button>

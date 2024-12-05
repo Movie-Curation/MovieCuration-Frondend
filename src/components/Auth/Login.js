@@ -39,10 +39,8 @@ const LogIn = ({ setIsLoggedIn }) => {
                 password: formData.password
             });
 
-            console.log(response.data.access);
             // 로그인 성공 처리
             if (response.status === 200 && response.data.access) {
-                console.log("로그인 성공: ", response.data);
 
                 localStorage.setItem("access_token", response.data.access);
                 localStorage.setItem("refresh_token", response.data.refresh);

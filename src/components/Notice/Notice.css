@@ -1,47 +1,69 @@
+/* 공지사항 컨테이너 */
 .recent-movies-notice {
-    position: fixed; /* 화면에 고정 */
-    top: 50%; /* 화면의 세로 중앙 */
-    left: 50%; /* 화면의 가로 중앙 */
-    transform: translate(-50%, -50%); /* 요소를 정확히 중앙에 위치시킴 */
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 0 auto;
-    z-index: 1000; /* Navbar보다 앞에 위치하게끔 설정 */
+  position: fixed; /* 화면에 고정 */
+  top: 50%; /* 화면의 세로 중앙 */
+  left: 50%; /* 화면의 가로 중앙 */
+  transform: translate(-50%, -50%); /* 요소를 정확히 중앙에 위치시킴 */
+  background-color: var(--header-footer-bg); /* 다크 테마 배경 */
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* 부드러운 그림자 효과 */
+  max-width: 800px;
+  margin: 0 auto;
+  z-index: 1000; /* Navbar보다 앞에 위치 */
+  color: var(--text-color); /* 기본 텍스트 색상 */
 }
 
+/* 공지사항 제목 */
 .recent-movies-notice h2 {
-  font-size: 24px;
-  color: #333;
+  font-size: 1.8rem;
+  color: var(--primary-color); /* 강조 색상 */
   text-align: center;
   margin-bottom: 20px;
+  border-bottom: 2px solid var(--primary-color); /* 강조 선 */
+  display: inline-block;
+  padding-bottom: 5px;
 }
 
+/* 공지사항 리스트 */
 .recent-movies-notice ul {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
+/* 개별 공지사항 항목 */
 .recent-movies-notice li {
-  background-color: #fff;
+  background-color: var(--background-color); /* 다크 테마 배경 */
   padding: 15px;
   margin-bottom: 15px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* 카드 그림자 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: var(--text-color); /* 기본 텍스트 색상 */
 }
 
+.recent-movies-notice li:hover {
+  transform: scale(1.02); /* 호버 시 확대 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* 호버 시 그림자 강화 */
+}
+
+/* 공지사항 제목 강조 */
 .recent-movies-notice li strong {
-  font-size: 18px;
-  color: #2c3e50;
+  font-size: 1.2rem;
+  color: var(--primary-color); /* 강조 색상 */
 }
 
-.recent-movies-notice li br {
-  margin: 5px 0;
+/* 공지사항 텍스트 */
+.recent-movies-notice li p {
+  font-size: 0.9rem;
+  color: var(--secondary-color); /* 부드러운 텍스트 색상 */
+  margin-top: 5px;
 }
 
+/* 공지사항 텍스트 중앙 정렬 */
 .recent-movies-notice p {
   text-align: center;
-  color: #888;
+  color: var(--secondary-color); /* 부드러운 텍스트 색상 */
+  font-size: 1rem;
 }

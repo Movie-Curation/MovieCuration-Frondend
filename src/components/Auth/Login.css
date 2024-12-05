@@ -7,41 +7,47 @@
     width: 100%;
     max-width: 400px;
     padding: 2rem;
-    background-color: white;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    background-color: var(--header-footer-bg); /* 다크 테마 배경색 */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* 부드러운 경계선 */
+    border-radius: var(--border-radius);
+    color: var(--text-color); /* 기본 텍스트 색상 */
     z-index: 10; /* 내비게이션 바 위에 표시되도록 설정 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* 약간의 그림자 추가 */
 }
 
 .login-container h2 {
     text-align: center;
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
-    color: #333;
+    color: var(--primary-color); /* 강조 색상 */
 }
 
 /* 입력 필드 스타일 */
 .login-container label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #555;
+    font-size: 0.9rem;
+    color: var(--text-color); /* 기본 텍스트 색상 */
 }
 
 .login-container input[type="text"],
 .login-container input[type="password"] {
-    width: 90%;
+    width: 90%; /* 가로 크기를 100%로 설정 */
     padding: 0.75rem;
     margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
     font-size: 1rem;
-    color: #333;
+    color: white;
+    background-color: var(--background-color); /* 다크 테마 배경 */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .login-container input[type="text"]:focus,
 .login-container input[type="password"]:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: var(--primary-color); /* 포커스 시 강조 색상 */
+    box-shadow: 0 0 8px rgba(30, 144, 255, 0.5); /* 강조된 포커스 효과 */
 }
 
 /* 로그인 버튼 스타일 */
@@ -49,14 +55,30 @@
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
-    color: white;
-    background-color: #007bff;
+    color: #ffffff;
+    background-color: var(--primary-color); /* 주요 색상 */
     border: none;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .login-container button:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* 약간 더 진한 파란색 */
+    transform: scale(1.02); /* 약간 확대 */
+}
+
+/* 에러 및 메시지 스타일 */
+.login-container .error {
+    color: #ff6b6b; /* 에러 메시지는 빨간색 계열 */
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.login-container .success {
+    color: #28a745; /* 성공 메시지는 녹색 계열 */
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
 }

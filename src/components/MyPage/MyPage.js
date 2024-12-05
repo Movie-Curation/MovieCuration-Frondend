@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { FaGear } from "react-icons/fa6";
+import ProfileUpdate from "./ProfileUpdate";
 import './MyPage.css';
-// import mockMyPageData from './mockMyPageData.json';
-
 
 const MyPage = () => {
     const [userData, setUserData] = useState(
@@ -16,18 +15,72 @@ const MyPage = () => {
         name: "",
         reviews: [] });
     const [favoriteMovies, setFavoriteMovies] = useState([]);
+    const [userReviews, setUserReviews] = useState([]);
+    const [isProfileUpdateOpen, setIsProfileUpdateOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showAllFavorites, setShowAllFavorites] = useState(false);
     const [showAllReviews, setShowAllReviews] = useState(false);
 
+    // const mockupUserData = {
+    //     nickname: "MovieLover123",
+    //     email: "movielover@example.com",
+    //     userid: "user123",
+    //     gender: "female",
+    //     genres: ["Action", "Comedy", "Drama"],
+    //     name: "Jane Doe",
+    //     reviews: [
+    //         {
+    //             id: 1,
+    //             movie: {
+    //                 kobis: { movieCd: "001", movieNm: "Inception", prdtYear: "2010", nationNm: "USA" },
+    //                 tmdb: { poster_url: "https://placehold.co/200x285?text=Inception+Poster" },
+    //             },
+    //             text: "Mind-blowing! The plot twists are incredible.",
+    //         },
+    //         {
+    //             id: 2,
+    //             movie: {
+    //                 kobis: { movieCd: "002", movieNm: "Parasite", prdtYear: "2019", nationNm: "South Korea" },
+    //                 tmdb: { poster_url: "https://placehold.co/200x285?text=Parasite+Poster" },
+    //             },
+    //             text: "A masterpiece. Social commentary at its finest.",
+    //         },
+    //         {
+    //             id: 3,
+    //             movie: {
+    //                 kobis: { movieCd: "003", movieNm: "Interstellar", prdtYear: "2014", nationNm: "USA" },
+    //                 tmdb: { poster_url: "https://placehold.co/200x285?text=Interstellar+Poster" },
+    //             },
+    //             text: "An emotional journey through space and time.",
+    //         },
+    //     ],
+    //     followers: 120,
+    //     following: 85,
+    // };
+    
+    // const mockupFavoriteMovies = [
+    //     {
+    //         kobis: { movieCd: "101", movieNm: "The Dark Knight", prdtYear: "2008", nationNm: "USA" },
+    //         tmdb: { poster_url: "https://placehold.co/200x285?text=The+Dark+Knight+Poster" },
+    //     },
+    //     {
+    //         kobis: { movieCd: "102", movieNm: "Avengers: Endgame", prdtYear: "2019", nationNm: "USA" },
+    //         tmdb: { poster_url: "https://placehold.co/200x285?text=Avengers+Poster" },
+    //     },
+    //     {
+    //         kobis: { movieCd: "103", movieNm: "The Godfather", prdtYear: "1972", nationNm: "USA" },
+    //         tmdb: { poster_url: "https://placehold.co/200x285?text=The+Godfather+Poster" },
+    //     },
+    // ];
+    
     // useEffect(() => {
-    //     if (process.env.NODE_ENV === "development") {
-    //         setUserData(mockMyPageData);
-    //         setFavoriteMovies(mockMyPageData.favoriteMovies || []);
-    //         setLoading(false);
-    //     }
+    //     setUserData(mockupUserData);
+    //     setFavoriteMovies(mockupFavoriteMovies);
+    //     setUserReviews(mockupUserData.reviews);
+    //     setLoading(false); // 로딩 완료 표시
     // }, []);
+   
 
     useEffect (() => {
         // 백엔드에서 사용자 데이터 가져오기
@@ -39,15 +92,24 @@ const MyPage = () => {
                     return;
                 }
 
-                const response = await axios.get("/api/accounts/profile/", {
+                const userResponse = await axios.get("http://localhost:8000/api/accounts/profile/", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-                    withCredentials: true, // 쿠키 인증이 필요한 경우 추가
+                    // withCredentials: true, // 쿠키 인증이 필요한 경우 추가
                 });
 
-                console.log("User Data:", response.data);
-                setUserData(response.data.data);
+                const reviewsResponse = await axios.get("http://localhost:8000/api/accounts/reviews/user/", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                console.log(reviewsResponse.data.reviews);
+
+                setUserData(userResponse.data.data);
+                setUserReviews(reviewsResponse.data.reviews || []);
+
             } catch (error) {
                     setError(error.response?.data?.message || "유저 데이터를 불러오지 못했습니다."); // 에러 메시지 저장
             } finally {
@@ -63,11 +125,11 @@ const MyPage = () => {
                     return;
                 }
 
-                const response = await axios.get("/api/accounts/favorites/", {
+                const response = await axios.get("http://localhost:8000/api/accounts/favorites/", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-                    withCredentials: true, // 쿠키 인증이 필요한 경우 추가
+                    // withCredentials: true, // 쿠키 인증이 필요한 경우 추가
                 });
                 setFavoriteMovies(response.data || []);
             } catch (error) {
@@ -82,7 +144,7 @@ const MyPage = () => {
     const navigate = useNavigate();
 
     const handleProfileUpdateClick = () => {
-        navigate("/profile-update");
+        setIsProfileUpdateOpen(true);
     };
 
     const reviewsToShow = userData?.reviews && userData.reviews.length > 0 ? (showAllReviews ? userData.reviews : userData.reviews.slice(0, 3)) : [];
@@ -121,16 +183,20 @@ const MyPage = () => {
                 <div className="profile-option">
                     <FaGear className="profile-update" onClick={handleProfileUpdateClick} />
                 </div>
+                {/* ProfileUpdate 모달 */}
+                {isProfileUpdateOpen && (
+                <ProfileUpdate onClose={() => setIsProfileUpdateOpen(false)} />
+                )}
             </div>
             {/* 팔로우/팔로잉/좋아요 섹션 */}
             <div className="stats-section">
                 <Link to="/followers" className="stat">
-                    <p className="stat-label">팔로우</p>
-                    <p className="stat-value">{userData.followers}</p>
+                    <p className="stat-label">팔로워</p>
+                    <p className="stat-value">{userData.followers || 0}</p>
                 </Link>
                 <Link to="/following" className="stat">
                     <p className="stat-label">팔로잉</p>
-                    <p className="stat-value">{userData.following}</p>
+                    <p className="stat-value">{userData.following || 0}</p>
                 </Link>
                 {/* <div className="stat">
                     <p className="stat-label">전체 좋아요 수</p>
@@ -180,18 +246,18 @@ const MyPage = () => {
                 </div>
 
                 {/* "더 보기" 버튼 표시 */}
-                {/* {favoriteMovies.length > 3 && !showAllFavorites && (
+                {favoriteMovies.length > 3 && !showAllFavorites && (
                     <button onClick={() => setShowAllFavorites(true)} className="show-more-button">
                         더 보기
                     </button>
-                )} */}
+                )}
 
                 {/* "접기" 버튼 표시 */}
-                {/* {showAllFavorites && (
+                {showAllFavorites && (
                     <button onClick={() => setShowAllFavorites(false)} className="show-more-button">
                         접기
                     </button>
-                )} */}
+                )}
             </div>
 
             {/* 내가 쓴 리뷰 섹션 */}
@@ -227,6 +293,8 @@ const MyPage = () => {
                                         <h4>{review.movie.kobis?.movieNm || "Unknown Title"}</h4>
                                         <p>{review.movie.kobis?.prdtYear || "N/A"}</p>
                                         <p>{review.movie.kobis?.nationNm || "N/A"}</p>
+                                    </div>
+                                    <div className="review-card-content">
                                         <p className="review-text">"{review.text}"</p>
                                     </div>
                                 </div>
@@ -236,18 +304,18 @@ const MyPage = () => {
                 </div>
 
                 {/* "더 보기" 버튼 표시 */}
-                {/* {userData?.reviews.length > 3 && !showAllReviews && (
+                {userData?.reviews.length > 3 && !showAllReviews && (
                     <button onClick={() => setShowAllReviews(true)} className="show-more-button">
                         더 보기
                     </button>
-                )} */}
+                )}
 
                 {/* "접기" 버튼 표시 */}
-                {/* {showAllReviews && (
+                {showAllReviews && (
                     <button onClick={() => setShowAllReviews(false)} className="show-more-button">
                         접기
                     </button>
-                )} */}
+                )}
             </div>
         </div>        
     );

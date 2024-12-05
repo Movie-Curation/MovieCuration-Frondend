@@ -2,12 +2,13 @@
     position: absolute;
     top: 100%;
     left: 0;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    background-color: var(--header-footer-bg); /* 다크 테마 배경색 */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* 부드러운 경계선 */
+    border-radius: var(--border-radius);
     width: 200px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* 어두운 그림자 */
     z-index: 1000;
+    overflow: hidden; /* 내부 내용이 벗어나지 않도록 설정 */
 }
 
 .dropdown-menu ul {
@@ -17,11 +18,19 @@
 }
 
 .dropdown-menu li {
-    padding: 10px;
+    padding: 8px 12px; /* 간격을 줄여 세로 공간 절약 */
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    color: var(--text-color); /* 기본 텍스트 색상 */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 14px; /* 텍스트 크기를 약간 줄임 */
 }
 
 .dropdown-menu li:hover {
-    background-color: #f0f0f0;
+    background-color: var(--primary-color); /* 강조 색상 */
+    color: #ffffff; /* 호버 시 텍스트 색상 변경 */
+}
+
+.dropdown-menu li:active {
+    background-color: var(--secondary-color); /* 클릭 시 강조 색상 */
+    color: #ffffff; /* 클릭 시 텍스트 색상 */
 }

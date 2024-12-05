@@ -1,67 +1,122 @@
-/* profile-update 페이지의 전체 레이아웃 */
-.profile-update-container {
+/* 모달 배경 스타일 */
+.profile-update-modal {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
     width: 100%;
-    max-width: 400px;
-    padding: 2rem;
-    background-color: white;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding-top: 150px;
-    z-index: 10; /* 내비게이션 바 위에 표시되도록 설정 */
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 배경 어둡게 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px); /* 배경 흐림 효과 */
 }
 
+/* 모달 컨테이너 */
+.profile-update-container {
+    width: 90%;
+    max-width: 500px;
+    padding: 2rem;
+    background-color: var(--header-footer-bg); /* 다크 테마 배경 */
+    border-radius: var(--border-radius);
+    color: var(--text-color); /* 텍스트 색상 */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
+    max-height: 90vh; /* 화면에 맞는 높이 제한 */
+    position: relative;
+}
+
+/* 닫기 버튼 */
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #ffffff; /* 닫기 버튼 색상 */
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.close-btn:hover {
+    color: var(--primary-color); /* 강조 색상으로 변경 */
+    transform: rotate(90deg); /* 호버 시 회전 효과 */
+}
+
+/* 제목 */
 .profile-update-container h2 {
     text-align: center;
+    font-size: 1.8rem;
     margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-    color: #333;
+    color: var(--primary-color); /* 강조 색상 */
 }
 
-/* 입력 필드 스타일 */
-.profile-update-container label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #555;
+/* 폼 스타일 */
+.profile-update-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* 입력 필드 간격 */
 }
 
+/* 입력 필드 */
 .profile-update-container input[type="text"],
 .profile-update-container input[type="email"],
 .profile-update-container input[type="password"],
 .profile-update-container select {
     width: 90%;
     padding: 0.75rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius);
     font-size: 1rem;
-    color: #333;
+    color: var(--text-color);
+    background-color: var(--background-color); /* 필드 배경 */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.profile-update-container input[type="text"]:focus,
-.profile-update-container input[type="email"]:focus,
-.profile-update-container input[type="password"]:focus,
+.profile-update-container input:focus,
 .profile-update-container select:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px rgba(30, 144, 255, 0.5);
 }
 
-/* 회원가입 버튼 스타일 */
+/* 프로필 이미지 업로드 */
+.profile-update-container input[type="file"] {
+    border: none;
+    background-color: transparent;
+    color: var(--text-color);
+}
+
+/* 버튼 */
 .profile-update-container button {
-    width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
-    color: white;
-    background-color: #007bff;
+    background-color: var(--primary-color); /* 주요 버튼 색상 */
+    color: #ffffff;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .profile-update-container button:hover {
     background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* 성공 및 에러 메시지 */
+.profile-update-container .success {
+    color: #28a745; /* 성공 메시지 색상 */
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.profile-update-container .error {
+    color: #ff6b6b; /* 에러 메시지 색상 */
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 1rem;
 }
