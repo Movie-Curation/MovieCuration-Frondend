@@ -158,6 +158,111 @@
     background-color: #0056b3;
 }
 
+/* 리뷰 목록 */
+.reviews-list {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: var(--background-color); /* 다크 테마 배경 */
+    border-radius: var(--border-radius);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+    color: #ffffff; /* 텍스트 색상 */
+}
+
+/* 정렬 버튼 섹션 */
+.sort-options {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.sort-options button {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    background-color: var(--background-color);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sort-options button.active {
+    background-color: var(--primary-color); /* 활성 상태 강조 색상 */
+    color: #ffffff;
+}
+
+.sort-options button:hover {
+    background-color: var(--secondary-color);
+    color: #ffffff;
+}
+
+/* 리뷰 아이템 */
+.review-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.5); /* 다크 모드 효과 */
+    border-radius: var(--border-radius);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 리뷰 제목 및 내용 */
+.review-item strong {
+    font-size: 1rem;
+    color: var(--primary-color); /* 사용자 이름 강조 */
+}
+
+.review-item p {
+    margin: 10px 0;
+    font-size: 0.9rem;
+    color: #ffffff; /* 텍스트 색상 */
+}
+
+/* 별점 */
+.review-item .star-rating {
+    display: flex;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.review-item .star-rating svg {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.review-item .star-rating svg:hover {
+    transform: scale(1.2); /* 호버 시 확대 */
+}
+
+/* 리뷰 액션 버튼 */
+.review-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--secondary-color);
+    font-size: 1.0rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: 10px;
+    transition: color 0.3s ease;
+}
+
+.review-actions button:hover {
+    color: var(--primary-color); /* 호버 시 강조 색상 */
+}
+
+/* 신고 버튼 */
+.review-actions .PiSiren {
+    color: var(--warning-color); /* 신고 버튼 강조 색상 */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.review-actions .PiSiren:hover {
+    color: var(--danger-color); /* 호버 시 경고 색상 */
+}
+
+
 /* 추천 영화 섹션 */
 .recommended-movies {
     display: grid;
@@ -172,7 +277,8 @@
 }
 
 .movie-card {
-    width: 150px; /* 카드의 고정된 너비 */
+    width: 100%; /* 그리드 셀 크기에 맞게 카드 크기 설정 */
+    max-width: 220px; /* 카드의 최대 너비를 설정하여 너무 커지지 않도록 제어 */
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--border-radius);
     background-color: var(--background-color); /* 다크 테마 배경 */

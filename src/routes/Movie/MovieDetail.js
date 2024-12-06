@@ -35,14 +35,24 @@ function MovieDetail() {
                 }
     
                 // 로그인 상태 확인 요청
-                await checkLoginStatus(token);
+                const user = await checkLoginStatus(token);
+                console.log("Fetched user from API:", user);
+                setLoggedInUser(user);
+                console.log("Set loggedInUser:", user); 
+                setIsLoggedIn(true);
             } catch (error) {
                 if (error.response?.status === 401 && error.response.data.code === "token_not_valid") {
                     try {
                         // 토큰 갱신 시도
                         const newAccessToken = await refreshAccessToken();
-                        // 갱신된 토큰으로 다시 로그인 상태 확인
-                        await checkLoginStatus(newAccessToken);
+                        if (newAccessToken) {
+                            localStorage.setItem("access_token", newAccessToken);
+                            const user = await checkLoginStatus(newAccessToken);
+                            setLoggedInUser(user);
+                            setIsLoggedIn(true);
+                        } else {
+                            throw new Error("토큰 갱신 실패");
+                        }
                     } catch (refreshError) {
                         console.error("토큰 갱신 실패:", refreshError);
                         setIsLoggedIn(false);
@@ -67,6 +77,9 @@ function MovieDetail() {
             setIsLoggedIn(response.data.is_logged_in);
             setLoggedInUser(response.data.user);
             setIsAdmin(response.data.is_admin);
+
+            console.log("Login status response:", response.data);
+            return response.data.user;
         };
     
         const refreshAccessToken = async () => {
@@ -128,9 +141,16 @@ function MovieDetail() {
 
         const fetchReviews = async () => {
             try {
-                const response = await axios.get(`/api/accounts/reviews/movies/${movieCd}`);
+                const token = localStorage.getItem("access_token");
+                const response = await axios.get(`/api/accounts/reviews/movie/${movieCd}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                console.log("fetched reviews", response.data);
                 setReviews(response.data);
             } catch (error) {
+                console.log("Fetching reviews for movieCd:", movieCd);
                 console.error("리뷰를 가져오는 데 실패했습니다:", error);
             }
         };
@@ -164,15 +184,24 @@ function MovieDetail() {
             const token = localStorage.getItem("access_token");
             setIsLoggedIn(!!token);
             const response = await axios.post("http://localhost:8000/api/accounts/reviews/", {
-                movieCd: movieCd,
+                movieCd: parseInt(movieCd, 10),
                 comment: review,
                 rating: score.filter(Boolean).length,
+                is_expert_review: false,
                 // created_at: new Date().toLocaleString()
             },
             {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
+            });
+
+            
+            console.log({
+                movieCd: parseInt(movieCd, 10),
+                comment: review,
+                rating: score.filter(Boolean).length,
+                is_expert_review: false,
             });
             setReviews((prev) => [...prev, response.data]);
             setReview("");
@@ -318,38 +347,38 @@ function MovieDetail() {
 
     // 리뷰 편집 모드
     const [editMode, setEditMode] = useState(null);
-    const [editContent, setEditContent] = useState("");
+    const [editComment, setEditComment] = useState("");
     const [editRating, setEditRating] = useState(0);
 
     // 리뷰 수정 및 삭제 핸들러
     const handleEditStart = (review) => {
         setEditMode(review.id);
-        setEditContent(review.content);
+        setEditComment(review.comment);
         setEditRating(review.rating);
     };
     
     const handleEditSubmit = async (review_id) => {
         try {
             await axios.patch(`http://localhost:8000/api/accounts/reviews/${review_id}`, {
-                content: editContent,
+                comment: editComment,
                 rating: editRating,
             });
     
             setReviews((prev) =>
                 prev.map((review) =>
                     review.id === review_id
-                        ? { ...review, content: editContent, rating: editRating }
+                        ? { ...review, comment: editComment, rating: editRating }
                         : review
                 )
             );
             setEditMode(null);
-            setEditContent("");
+            setEditComment("");
             setEditRating(0);
         } catch (error) {
             console.error("Error editing review: ", error);
         }
     };
-    
+
     const handleDelete = async (review_id) => {
         try {
             await axios.delete(`http://localhost:8000/api/accounts/reviews/${review_id}/delete`);
@@ -416,8 +445,8 @@ function MovieDetail() {
                 <h3>감독</h3>
                 <ul>
                     {director.length > 0 ? (
-                        director.map((dir, index) => (
-                            <li key={index}>{dir.peopleNm || dir}</li>
+                        director.map((dir) => (
+                            <li key={dir.peopleNm}>{dir.peopleNm || dir}</li>
                         ))
                     ) : (
                         <p>감독 정보 없음</p>
@@ -526,8 +555,8 @@ function MovieDetail() {
                                 </div>
                                 <textarea
                                     className={editMode === review.id ? "edit-textarea" : ""}
-                                    value={editContent}
-                                    onChange={(e) => setEditContent(e.target.value)}
+                                    value={editComment}
+                                    onChange={(e) => setEditComment(e.target.value)}
                                 />
                                 <div className="edit-buttons">
                                     <button className="review-button" onClick={() => handleEditSubmit(review.id)}>저장</button>
@@ -538,11 +567,11 @@ function MovieDetail() {
                             <div>
                                 <p><strong>
                                     <Link to={`api/accounts/profile/${review.user_id}`} className="review-user-link">
-                                    {review.user}
+                                    {review.nickname || "익명"}
                                     {review.likes > 100 && " 🏆"}
                                     </Link>
                                     </strong> ({new Date(review.created_at).toLocaleString()}):</p>
-                                <p>{review.content}</p>
+                                <p>{review.comment}</p>
                                 <p>⭐: {review.rating.toFixed(1)}</p>
                                 <div className="review-actions">
                                     {isLoggedIn ? (
@@ -563,19 +592,23 @@ function MovieDetail() {
                                     <button onClick={() => handleReport(review.id)}>
                                         <PiSiren size={20} />
                                     </button>
-                                    {(isAdmin || (loggedInUser && review.user === loggedInUser.userid)) && (  // 운영자의 리뷰 삭제 기능
+                                    {isLoggedIn && (
                                         <>
-                                            {review.user === loggedInUser.userid && (  // 리뷰 작성자만 리뷰 수정/삭제하는 기능
-                                                <button onClick={() => handleEditStart(review)}>수정</button>
+                                            {(isAdmin || review?.user === loggedInUser?.userid) && (
+                                                <>
+                                                    {review?.user === loggedInUser?.userid && (
+                                                        <button onClick={() => handleEditStart(review)}>수정</button>
+                                                    )}
+                                                    <button onClick={() => handleDelete(review.id)}>삭제</button>
+                                                </>
                                             )}
-                                            <button onClick={() => handleDelete(review.id)}>삭제</button>
                                         </>
                                     )}
                                 </div>
                             </div>
                         )}
                         {/* 댓글 컴포넌트 */}
-                        <CommentsSection review_id={review.id} isLoggedIn={isLoggedIn} />
+                        <CommentsSection key={review.id} review_id={review.id} isLoggedIn={isLoggedIn} />
                     </div>
                 ))}
             </div>

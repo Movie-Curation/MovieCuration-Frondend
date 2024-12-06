@@ -53,8 +53,13 @@ const LogIn = ({ setIsLoggedIn }) => {
             }
         } catch (err) {
             // 네트워크 오류 또는 인증 실패 처리
-            console.error("로그인 오류: ", err);
-            setError("아이디 또는 비밀번호가 올바르지 않습니다.");
+            if (err.response) {
+                console.error("서버 응답 오류: ", err.response.data);
+                setError(err.response.data.detail || "아이디 또는 비밀번호가 올바르지 않습니다.");
+            } else {
+                console.error("로그인 오류: ", err);
+                setError("네트워크 오류가 발생했습니다.");
+            }
         }
     };
 
