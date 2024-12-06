@@ -266,6 +266,28 @@ function MovieDetail() {
         }
     };
 
+    // 리뷰 좋아요/싫어요 개수 불러오는 함수
+    const fetchReactionData = async (review_id) => {
+        try {
+            const token = localStorage.getItem("access_token");
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+    
+            const response = await axios.get(`http://localhost:8000/api/accounts/reviews/${review_id}/reaction/`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+    
+            return response.data; // 백엔드에서 likes, dislikes를 반환한다고 가정
+        } catch (error) {
+            console.error(`리액션 데이터를 불러오는 데 실패했습니다: ${error}`);
+            return null;
+        }
+    };
+
     // 리뷰 좋아요/싫어요 이벤트 핸들러
     const handleReaction = async (review_id, reaction) => {
         if (!isLoggedIn) {
@@ -282,14 +304,18 @@ function MovieDetail() {
 
             const config = {
                 headers: {
-                    Authorization: `Bearer ${token},`
+                    Authorization: `Bearer ${token}`
                 },
             };
 
             await axios.post(`http://localhost:8000/api/accounts/reviews/${review_id}/reaction/`, { reaction }, config);
-            const updatedReview = await axios.get(`http://localhost:8000/api/accounts/reviews/${review_id}/reaction/`, config);
+            const updatedReactions = await fetchReactionData(review_id);
             setReviews((prev) =>
-                prev.map((review) => (review.id === review_id ? { ...review, ...updatedReview.data } : review))
+                prev.map((review) =>
+                    review.id === review_id
+                        ? { ...review, likes: updatedReactions.likes, dislikes: updatedReactions.dislikes }
+                        : review
+                )
             );
         } catch (error) {
             console.error("리뷰 반응 처리 실패:", error);
