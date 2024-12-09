@@ -9,6 +9,8 @@
   border-radius: var(--border-radius);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* 부드러운 그림자 효과 */
   max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
   margin: 0 auto;
   z-index: 1000; /* Navbar보다 앞에 위치 */
   color: var(--text-color); /* 기본 텍스트 색상 */
@@ -66,4 +68,19 @@
   text-align: center;
   color: var(--secondary-color); /* 부드러운 텍스트 색상 */
   font-size: 1rem;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px; /* 모달 상단에서의 위치 */
+  right: 10px; /* 모달 우측에서의 위치 */
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: var(--secondary-color);
 }

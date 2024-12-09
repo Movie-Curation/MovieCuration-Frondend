@@ -3,6 +3,7 @@ import './Notice.css'
 
 const RecentMoviesNotice = () => {
     const [movies, setMovies] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(true);
 
     useEffect(() => {
 
@@ -19,8 +20,15 @@ const RecentMoviesNotice = () => {
         fetchRecentMovies();
     }, []);
 
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    if (!isModalOpen) return null;
+
     return (
         <div className="recent-movies-notice">
+            <button className="close-button" onClick={closeModal}>X</button>
             <h2>최근 3일간 추가된 영화</h2>
             {movies.length > 0 ? (
                 <ul>
