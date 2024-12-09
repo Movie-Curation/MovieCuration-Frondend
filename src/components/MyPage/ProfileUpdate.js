@@ -19,7 +19,12 @@ const ProfileUpdate = ({ onClose }) => { // onClose prop 추가
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                const response = await axios.get("/api/accounts/profile/");
+                const token = localStorage.getItem("access_token");
+                const response = await axios.get("http://localhost:8000/api/accounts/profile/",
+                    {headers: {
+                        "Authorization": `Bearer ${token}`
+                    }}
+                );
                 setFormData({
                     id: response.data.id,
                     email: response.data.email,
@@ -27,7 +32,8 @@ const ProfileUpdate = ({ onClose }) => { // onClose prop 추가
                     confirmPassword: "",
                     name: response.data.name,
                     gender: response.data.gender,
-                    nickname: response.data.nickname
+                    nickname: response.data.nickname,
+                    profileImage: null
                 });
             } catch (error) {
                 console.error("프로필 데이터 불러오기 오류: ", error);
@@ -43,6 +49,14 @@ const ProfileUpdate = ({ onClose }) => { // onClose prop 추가
         setFormData({
             ...formData,
             [name]: value
+        });
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setFormData({
+            ...formData,
+            profileImage:file
         });
     };
 
@@ -64,10 +78,13 @@ const ProfileUpdate = ({ onClose }) => { // onClose prop 추가
         }
 
         try {
+            const token = localStorage.getItem("access_token");
             const response = await axios.put(
-                "/api/accounts/profile/update/",
+                "http://localhost:8000/api/accounts/profile/update/",
                 data,
-                { headers: { "Content-Type": "multipart/form-data" } }
+                { headers: { 
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data" } }
             );
 
             if (response.status === 200) {
@@ -107,9 +124,9 @@ const ProfileUpdate = ({ onClose }) => { // onClose prop 추가
                     <label>성별:</label>
                     <select name="gender" value={formData.gender} onChange={handleChange} required>
                         <option value="">선택하세요</option>
-                        <option value="male">남성</option>
-                        <option value="female">여성</option>
-                        <option value="secret">비밀</option>
+                        <option value="M">남성</option>
+                        <option value="F">여성</option>
+                        <option value="O">기타</option>
                     </select>
 
                     <label>닉네임:</label>
@@ -119,7 +136,8 @@ const ProfileUpdate = ({ onClose }) => { // onClose prop 추가
                     <input
                         type="file"
                         name="profileImage"
-                        onChange={(e) => setFormData({ ...formData, profileImage: e.target.files[0] })}
+                        accept="image/*"
+                        onChange={handleFileChange}
                     />
                     <button type="submit">프로필 업데이트</button>
                 </form>

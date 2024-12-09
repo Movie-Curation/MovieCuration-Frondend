@@ -7,12 +7,12 @@ import "./UserProfile.css";
 const UserProfile = () => {
     const { user_id } = useParams();
     const [userData, setUserData] = useState(null);
-    const [favoriteMovies, setFavoriteMovies] = useState([]);
+    // const [favoriteMovies, setFavoriteMovies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFollowing, setIsFollowing] = useState(false);
-    const [showAllFavorites, setShowAllFavorites] = useState(false);
-    const [showAllReviews, setShowAllReviews] = useState(false);
+    // const [showAllFavorites, setShowAllFavorites] = useState(false);
+    // const [showAllReviews, setShowAllReviews] = useState(false);
 
     // const mockupUserData = {
     //     userId: "user_456",
@@ -80,43 +80,50 @@ const UserProfile = () => {
                     return;
                 }
 
-                const response = await axios.get(`/api/accounts/profile/${user_id}/`, {
+                const response = await axios.get(`http://localhost:8000/api/accounts/profile/${user_id}/`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                     withCredentials: true,
                 });
-                setUserData(response.data.data);
-                setIsFollowing(response.data.data.isFollowing);
+                const data = response.data.data;
+                console.log(data);
+                if (data) {
+                    setUserData({
+                        ...data,
+                        reviews: Array.isArray(data.reviews?.data) ? data.reviews.data : [],
+                    })
+                }
             } catch (error) {
+                console.log(error);
                 setError(error.response?.data?.message || "유저 데이터를 가져오지 못했습니다.");
             } finally {
                 setLoading(false);
             }
         };
 
-        const fetchFavoriteMovies = async () => {
-            try {
-                const token = localStorage.getItem("access_token");
-                if (!token) {
-                    console.error("토큰이 없습니다. 로그인해주세요.");
-                    return;
-                }
+        // const fetchFavoriteMovies = async () => {
+        //     try {
+        //         const token = localStorage.getItem("access_token");
+        //         if (!token) {
+        //             console.error("토큰이 없습니다. 로그인해주세요.");
+        //             return;
+        //         }
 
-                const response = await axios.get("/api/accounts/favorites/", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    withCredentials: true,
-                });
-                setFavoriteMovies(response.data);
-            } catch (error) {
-                console.error("좋아하는 영화를 불러오지 못했습니다.", error);
-            }
-        };
+        //         const response = await axios.get("/api/accounts/favorites/", {
+        //             headers: {
+        //                 Authorization: `Bearer ${token}`,
+        //             },
+        //             withCredentials: true,
+        //         });
+        //         setFavoriteMovies(response.data);
+        //     } catch (error) {
+        //         console.error("좋아하는 영화를 불러오지 못했습니다.", error);
+        //     }
+        // };
 
         fetchUserData();
-        fetchFavoriteMovies();
+        // fetchFavoriteMovies();
     }, [user_id]);
 
     const handleFollowToggle = async () => {
@@ -128,14 +135,14 @@ const UserProfile = () => {
             }
 
             if (isFollowing) {
-                await axios.delete(`/api/accounts/follow/${user_id}`, {
+                await axios.delete(`http://localhost:8000/api/accounts/follow/${user_id}}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 });
                 setIsFollowing(false);
             } else {
-                await axios.post(`/api/accounts/follow/${user_id}`, {}, {
+                await axios.post(`http://localhost:8000/api/accounts/follow/${user_id}}`, {}, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -148,16 +155,12 @@ const UserProfile = () => {
         }
     };
 
-    const reviewsToShow = userData?.reviews
-        ? showAllReviews
-            ? userData.reviews
-            : userData.reviews.slice(0, 3)
-        : [];
-    const favoriteMoviesToShow = favoriteMovies
-        ? showAllFavorites
-            ? favoriteMovies
-            : favoriteMovies.slice(0, 3)
-        : [];
+    const reviewsToShow = Array.isArray(userData?.reviews) ? userData.reviews : [];
+    // const favoriteMoviesToShow = favoriteMovies
+    //     ? showAllFavorites
+    //         ? favoriteMovies
+    //         : favoriteMovies.slice(0, 3)
+    //     : [];
 
     if (loading) {
         return <div className="user-profile-container">로딩 중...</div>;
@@ -190,17 +193,17 @@ const UserProfile = () => {
 
             {/* 팔로워/팔로잉 섹션 */}
             <div className="stats-section">
-                <Link to={`/followers/${user_id}`} className="stat">
+                <Link to={`http://localhost:8000/followers/${user_id}}`} className="stat">
                     <p className="stat-label">팔로워</p>
                     <p className="stat-value">{userData.followers || 0}</p>
                 </Link>
-                <Link to={`/following/${user_id}`} className="stat">
+                <Link to={`http://localhost:8000/following/${user_id}}`} className="stat">
                     <p className="stat-label">팔로잉</p>
                     <p className="stat-value">{userData.following || 0}</p>
                 </Link>
             </div>
 
-            <div className="favorite-movies-section">
+            {/* <div className="favorite-movies-section">
                 <h3>{userData.nickname}님이 좋아하는 영화</h3>
                 <div className="favorite-movies-list">
                     {favoriteMovies.length === 0 ? (
@@ -228,44 +231,50 @@ const UserProfile = () => {
                 {showAllFavorites && (
                     <button className="show-more-button" onClick={() => setShowAllFavorites(false)}>접기</button>
                 )}
-            </div>
+            </div> */}
 
             <div className="review-list-section">
-                <h3>{userData.nickname}님의 리뷰</h3>
+                <h3>{userData.profile.nickname}님의 리뷰</h3>
                 <div className="review-list">
-                    {reviewsToShow.map((review) => (
-                        <div key={review.id} className="review-card">
-                            <div className="review-card-content">
-                                {/* 영화 포스터 */}
-                                {review.movie.tmdb?.poster_url ? (
-                                    <img
-                                        className="review-movie-poster"
-                                        src={review.movie.tmdb.poster_url}
-                                        alt={review.movie.kobis?.movieNm || "Poster"}
-                                    />
+                    {reviewsToShow.length > 0 ? (
+                        reviewsToShow.map((review) => (
+                            <div key={review.id} className="review-card">
+                                {review.movie ? (
+                                    <div className="review-card-content">
+                                        {review.movie.tmdb?.poster_url ? (
+                                            <img
+                                                className="review-movie-poster"
+                                                src={review.movie.tmdb.poster_url}
+                                                alt={review.movie.kobis?.movieNm || "Poster"}
+                                            />
+                                        ) : (
+                                            <div className="review-no-poster">
+                                                <img src="https://placehold.co/200x285?text=No+Poster" alt="No Poster Available" />
+                                            </div>
+                                        )}
+                                        <div className="review-text-content">
+                                            <h4>{review.movie.kobis?.movieNm || "Unknown Title"}</h4>
+                                            <p className="review-text">"{review.comment}"</p>
+                                        </div>
+                                    </div>
                                 ) : (
-                                    <div className="review-no-poster">
-                                        <img src="https://placehold.co/200x285?text=No+Poster" alt="No Poster Available" />
+                                    <div className="review-card-content">
+                                        <p>영화 정보가 없습니다.</p>
                                     </div>
                                 )}
-                                {/* 영화 정보 및 리뷰 내용 */}
-                                <div className="review-text-content">
-                                    <h4>{review.movie.kobis?.movieNm || "Unknown Title"}</h4>
-                                    <p>{review.movie.kobis?.prdtYear || "N/A"}</p>
-                                    <p>{review.movie.kobis?.nationNm || "N/A"}</p>
-                                    <p className="review-text">"{review.text}"</p>
-                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        <p>리뷰가 없습니다.</p>
+                    )}
                 </div>
-                {userData.reviews.length > 3 && !showAllReviews && (
+            </div>
+                {/* {userData.reviews.length > 3 && !showAllReviews && (
                     <button className="show-more-button" onClick={() => setShowAllReviews(true)}>더 보기</button>
                 )}
                 {showAllReviews && (
                     <button className="show-more-button" onClick={() => setShowAllReviews(false)}>접기</button>
-                )}
-            </div>
+                )} */}
         </div>
     );
 };

@@ -33,7 +33,8 @@ const SignUp = ({ onClose }) => {
         name: "",
         gender: "",
         nickname: "",
-        favoriteGenres: []
+        favoriteGenres: [],
+        profileImage: null
     });
 
     const [successMessage, setSuccessMessage] = useState("");
@@ -44,6 +45,13 @@ const SignUp = ({ onClose }) => {
         setFormData({
             ...formData,
             [name]: value
+        });
+    };
+
+    const handleFileChange = (e) => {
+        setFormData({
+            ...formData,
+            profileImage: e.target.files[0]
         });
     };
 
@@ -75,21 +83,25 @@ const SignUp = ({ onClose }) => {
         }
 
         try {
+            const form = new FormData(); // FormData 객체 생성
+            form.append("userid", formData.userid);
+            form.append("email", formData.email);
+            form.append("password", formData.password);
+            form.append("password2", formData.password2);
+            form.append("name", formData.name);
+            form.append("gender", formData.gender);
+            form.append("nickname", formData.nickname);
+            formData.favoriteGenres.forEach((genreId) => form.append("genres", genreId));
+            if (formData.profileImage) {
+                form.append("profile_image", formData.profileImage); // 이미지 파일 추가
+            }
+
             const response = await axios.post(
                 "http://localhost:8000/api/accounts/register/",
-                {
-                    userid: formData.userid,
-                    email: formData.email,
-                    password: formData.password,
-                    password2: formData.password2,
-                    name: formData.name,
-                    gender: formData.gender,
-                    nickname: formData.nickname,
-                    genres: formData.favoriteGenres,
-                },
+                form,
                 {
                     headers: {
-                        "Content-Type": "application/json",
+                        "Content-Type": "multipart/form-data", // 멀티파트 데이터로 설정
                     },
                 }
             );
@@ -99,6 +111,7 @@ const SignUp = ({ onClose }) => {
         } catch (error) {
             if (error.response) {
                 console.error("Validation Errors:", error.response.data);
+                console.log (error);
                 setErrorMessage(error.response.data.message || "회원가입에 실패했습니다.");
             } else {
                 setErrorMessage("네트워크 오류가 발생했습니다.");
@@ -154,6 +167,9 @@ const SignUp = ({ onClose }) => {
                         </div>
                     ))}
                 </div>
+
+                <label>프로필 이미지:</label>
+                    <input type="file" accept="image/*" onChange={handleFileChange} />
                 
                 <button type="submit">회원가입</button>
             </form>

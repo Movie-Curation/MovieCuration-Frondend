@@ -15,7 +15,6 @@ const CommentsSection = ({ review_id, isLoggedIn, loggedInUser }) => {
         const fetchComments = async () => {
             try {
             const response = await axios.get(`http://localhost:8000/api/accounts/reviews/${review_id}/comments/`);
-            console.log("댓글 데이터:", response.data);
             setComments((prevComments) => ({
                 ...prevComments,
                 [review_id]: response.data, // review_id별로 배열 저장

@@ -36,9 +36,7 @@ function MovieDetail() {
     
                 // 로그인 상태 확인 요청
                 const user = await checkLoginStatus(token);
-                console.log("Fetched user from API:", user);
                 setLoggedInUser(user);
-                console.log("Set loggedInUser:", user); 
                 setIsLoggedIn(true);
             } catch (error) {
                 if (error.response?.status === 401 && error.response.data.code === "token_not_valid") {
@@ -78,7 +76,6 @@ function MovieDetail() {
             setLoggedInUser(response.data.user);
             setIsAdmin(response.data.is_admin);
 
-            console.log("Login status response:", response.data);
             return response.data.user;
         };
     
@@ -147,10 +144,9 @@ function MovieDetail() {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                console.log("fetched reviews", response.data);
+
                 setReviews(response.data);
             } catch (error) {
-                console.log("Fetching reviews for movieCd:", movieCd);
                 console.error("리뷰를 가져오는 데 실패했습니다:", error);
             }
         };
@@ -197,12 +193,6 @@ function MovieDetail() {
             });
 
             
-            console.log({
-                movieCd: parseInt(movieCd, 10),
-                comment: review,
-                rating: score.filter(Boolean).length,
-                is_expert_review: false,
-            });
             setReviews((prev) => [...prev, response.data]);
             setReview("");
             setScore([false, false, false, false, false, false, false, false, false, false]);
@@ -592,7 +582,7 @@ function MovieDetail() {
                         ) : (
                             <div>
                                 <p><strong>
-                                    <Link to={`api/accounts/profile/${review.user_id}`} className="review-user-link">
+                                    <Link to={`/profile/${review.user}`} className="review-user-link">
                                     {review.nickname || "익명"}
                                     {review.likes > 100 && " 🏆"}
                                     </Link>
