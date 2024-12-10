@@ -7,19 +7,19 @@ import "./UserProfile.css";
 const UserProfile = () => {
     const { user_id } = useParams();
     const [userData, setUserData] = useState(null);
-    // const [favoriteMovies, setFavoriteMovies] = useState([]);
+    const [favoriteMovies, setFavoriteMovies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFollowing, setIsFollowing] = useState(false);
-    // const [showAllFavorites, setShowAllFavorites] = useState(false);
-    // const [showAllReviews, setShowAllReviews] = useState(false);
+    const [showAllFavorites, setShowAllFavorites] = useState(false);
+    const [showAllReviews, setShowAllReviews] = useState(false);
 
     // const mockupUserData = {
     //     userId: "user_456",
-    //     nickname: "FilmFanatic",
+    //     nickname: "Test5",
     //     profilePicture: "https://placehold.co/150x150?text=User+Image",
-    //     followers: 200,
-    //     following: 150,
+    //     followers: 0,
+    //     following: 1,
     //     isFollowing: false,
     //     reviews: [
     //         {
@@ -102,28 +102,28 @@ const UserProfile = () => {
             }
         };
 
-        // const fetchFavoriteMovies = async () => {
-        //     try {
-        //         const token = localStorage.getItem("access_token");
-        //         if (!token) {
-        //             console.error("토큰이 없습니다. 로그인해주세요.");
-        //             return;
-        //         }
+        const fetchFavoriteMovies = async () => {
+            try {
+                const token = localStorage.getItem("access_token");
+                if (!token) {
+                    console.error("토큰이 없습니다. 로그인해주세요.");
+                    return;
+                }
 
-        //         const response = await axios.get("/api/accounts/favorites/", {
-        //             headers: {
-        //                 Authorization: `Bearer ${token}`,
-        //             },
-        //             withCredentials: true,
-        //         });
-        //         setFavoriteMovies(response.data);
-        //     } catch (error) {
-        //         console.error("좋아하는 영화를 불러오지 못했습니다.", error);
-        //     }
-        // };
+                const response = await axios.get("/api/accounts/favorites/", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    withCredentials: true,
+                });
+                setFavoriteMovies(response.data);
+            } catch (error) {
+                console.error("좋아하는 영화를 불러오지 못했습니다.", error);
+            }
+        };
 
         fetchUserData();
-        // fetchFavoriteMovies();
+        fetchFavoriteMovies();
     }, [user_id]);
 
     const handleFollowToggle = async () => {
@@ -156,11 +156,11 @@ const UserProfile = () => {
     };
 
     const reviewsToShow = Array.isArray(userData?.reviews) ? userData.reviews : [];
-    // const favoriteMoviesToShow = favoriteMovies
-    //     ? showAllFavorites
-    //         ? favoriteMovies
-    //         : favoriteMovies.slice(0, 3)
-    //     : [];
+    const favoriteMoviesToShow = favoriteMovies
+        ? showAllFavorites
+            ? favoriteMovies
+            : favoriteMovies.slice(0, 3)
+        : [];
 
     if (loading) {
         return <div className="user-profile-container">로딩 중...</div>;
@@ -203,7 +203,7 @@ const UserProfile = () => {
                 </Link>
             </div>
 
-            {/* <div className="favorite-movies-section">
+            <div className="favorite-movies-section">
                 <h3>{userData.nickname}님이 좋아하는 영화</h3>
                 <div className="favorite-movies-list">
                     {favoriteMovies.length === 0 ? (
@@ -231,10 +231,10 @@ const UserProfile = () => {
                 {showAllFavorites && (
                     <button className="show-more-button" onClick={() => setShowAllFavorites(false)}>접기</button>
                 )}
-            </div> */}
+            </div>
 
             <div className="review-list-section">
-                <h3>{userData.profile.nickname}님의 리뷰</h3>
+                <h3>{userData.nickname}님의 리뷰</h3>
                 <div className="review-list">
                     {reviewsToShow.length > 0 ? (
                         reviewsToShow.map((review) => (
@@ -269,12 +269,12 @@ const UserProfile = () => {
                     )}
                 </div>
             </div>
-                {/* {userData.reviews.length > 3 && !showAllReviews && (
+                {userData.reviews.length > 3 && !showAllReviews && (
                     <button className="show-more-button" onClick={() => setShowAllReviews(true)}>더 보기</button>
                 )}
                 {showAllReviews && (
                     <button className="show-more-button" onClick={() => setShowAllReviews(false)}>접기</button>
-                )} */}
+                )}
         </div>
     );
 };
