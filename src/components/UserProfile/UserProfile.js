@@ -219,49 +219,49 @@ const UserProfile = () => {
 
             <div className="favorite-movies-section">
                 <h3>{userData.profile.nickname}님이 좋아하는 영화</h3>
-                <div className="favorite-movies-list">
-                    {favoriteMovies.length === 0 ? (
-                        <p>좋아하는 영화가 없습니다.</p>
-                    ) : (
-                        favoriteMoviesToShow.map((movie) => (
-                            <Link
-                                to={`/movies/${movie.movieCd}`}
-                                key={movie.movieCd}
-                                className="favorite-movie-card"
-                            >
-                                <img
-                                    src={movie.tmdb?.poster_url || "https://placehold.co/200x285?text=No+Poster"}
-                                    alt={movie.movieName}
-                                    className="favorite-movie-poster"
-                                />
-                                <p>{movie.movieName || "Unknown Title"}</p>
-                            </Link>
-                        ))
+                    <div className="favorite-movies-list">
+                        {favoriteMovies.length === 0 ? (
+                            <p>좋아하는 영화가 없습니다.</p>
+                        ) : (
+                            favoriteMoviesToShow.map((movie) => (
+                                <Link
+                                    to={`/movies/${movie.movieCd}`}
+                                    key={movie.movieCd}
+                                    className="favorite-movie-card"
+                                >
+                                    <img
+                                        src={movie.tmdb?.poster_url || "https://placehold.co/200x285?text=No+Poster"}
+                                        alt={movie.movieName}
+                                        className="favorite-movie-poster"
+                                    />
+                                    <p>{movie.movieName || "Unknown Title"}</p>
+                                </Link>
+                            ))
+                        )}
+                    </div>
+                    {favoriteMovies.length > 3 && !showAllFavorites && (
+                        <button className="show-more-button" onClick={() => setShowAllFavorites(true)}>더 보기</button>
                     )}
-                </div>
-                                {favoriteMovies.length > 3 && !showAllFavorites && (
-                                    <button className="show-more-button" onClick={() => setShowAllFavorites(true)}>더 보기</button>
-                                )}
-                                {showAllFavorites && (
-                                    <button className="show-more-button" onClick={() => setShowAllFavorites(false)}>접기</button>
-                                )}
-                            </div>
+                    {showAllFavorites && (
+                        <button className="show-more-button" onClick={() => setShowAllFavorites(false)}>접기</button>
+                    )}
+            </div>
 
-                            <div className="review-list-section">
-                                <h3>{userData.profile.nickname}님의 리뷰</h3>
-                                <div className="review-list">
-                    {Array.isArray(reviewsToShow) && reviewsToShow.length > 0 ? (
-                        reviewsToShow.map((review) => (
-                            <div key={review.id} className="review-card"
-                            onClick={() => review.movieCd && navigate(`/movies/${review.movieCd}/`)}
-                            style={{ cursor: "pointer" }}>
-                                <div className="review-card-content">
-                                    {review.poster ? (
-                                        <img
-                                            className="review-movie-poster"
-                                            src={review.poster}
-                                            alt={review.movieName || "Poster"}
-                                        />
+            <div className="review-list-section">
+                <h3>{userData.profile.nickname}님의 리뷰</h3>
+                    <div className="review-list">
+                        {Array.isArray(reviewsToShow) && reviewsToShow.length > 0 ? (
+                            reviewsToShow.map((review) => (
+                                <div key={review.id} className="review-card"
+                                    onClick={() => review.movieCd && navigate(`/movies/${review.movieCd}/`)}
+                                    style={{ cursor: "pointer" }}>
+                                    <div className="review-card-content">
+                                        {review.poster ? (
+                                            <img
+                                                className="review-movie-poster"
+                                                src={review.poster}
+                                                alt={review.movieName || "Poster"}
+                                                />
                                     ) : (
                                         <div className="review-no-poster">
                                             <img src="https://placehold.co/200x285?text=No+Poster" alt="No Poster Available" />
