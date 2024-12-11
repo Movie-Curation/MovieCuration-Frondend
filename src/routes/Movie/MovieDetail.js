@@ -151,21 +151,21 @@ function MovieDetail() {
             }
         };
 
-        // const checkFavoriteStatus = async () => {
-        //     try {
-        //         const token = localStorage.getItem("access_token");
-        //         const response = await axios.get(`http://localhost:8000/api/accounts/favorites/${movieCd}/`, {
-        //             headers: { Authorization: `Bearer ${token}` },
-        //         });
-        //         setIsFavorite(!!response.data.favorite);
-        //     } catch (error) {
-        //         console.error("즐겨찾기 상태 확인 실패:", error.response?.data || error.message);
-        //     }
-        // };
+        const checkFavoriteStatus = async () => {
+            try {
+                const token = localStorage.getItem("access_token");
+                const response = await axios.get(`http://localhost:8000/api/accounts/favorites/${movieCd}/`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setIsFavorite(!!response.data.favorite);
+            } catch (error) {
+                console.error("즐겨찾기 상태 확인 실패:", error.response?.data || error.message);
+            }
+        };
     
-        // if (isLoggedIn && movieCd) {
-        //     checkFavoriteStatus();
-        // }
+        if (isLoggedIn && movieCd) {
+            checkFavoriteStatus();
+        }
 
         fetchMovieDetail();
         fetchSimilarMovies();
