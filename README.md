@@ -29,3 +29,11 @@
 | 송민준 |[MJS13539940](https://github.com/MJS13539940)| 백엔드, AI |
 | 양병준 |[lilak3](https://github.com/lilak3)| 백엔드, 보안 |
 | 유혜정 |[hjyu0127](https://github.com/hjyu0127)| 프론트엔드 |
+
+### 리포지토리
+
+[백엔드](https://github.com/Movie-Curation/MovieCuration-BackEnd)   
+
+[프론트엔드](https://github.com/Movie-Curation/MovieCuration-FrontEnd)   
+
+
